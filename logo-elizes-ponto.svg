@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" role="img" aria-label="ELIZES PONTO">
+<defs>
+ <linearGradient id="o" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff9a35"/><stop offset="1" stop-color="#e65308"/></linearGradient>
+ <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#aeb5bd"/></linearGradient>
+ <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<g transform="translate(450 145)">
+ <circle r="103" fill="#111820" stroke="#fff" stroke-width="12"/>
+ <path d="M-68 -70 A98 98 0 0 1 72 -68" fill="none" stroke="url(#o)" stroke-width="18" stroke-linecap="round"/>
+ <path d="M72 68 A98 98 0 0 1 -70 70" fill="none" stroke="url(#o)" stroke-width="18" stroke-linecap="round"/>
+ <g stroke="#e8edf2" stroke-width="8" stroke-linecap="round">
+  <path d="M0 -78V-65 M78 0H65 M0 78V65 M-78 0H-65 M55 -55L46 -46 M-55 -55L-46 -46"/>
+ </g>
+ <path d="M-26 0L-4 24L48 -35" fill="none" stroke="url(#o)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M-155 -75H-88V-47H-124V-14H-92V14H-124V47H-88V75H-155Z" fill="url(#o)" stroke="#111820" stroke-width="5"/>
+</g>
+<text x="450" y="330" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="112" font-weight="900" letter-spacing="8" fill="#111820" stroke="#111820" stroke-width="10" paint-order="stroke">ELIZES</text>
+<text x="450" y="330" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="112" font-weight="900" letter-spacing="8" fill="url(#s)">ELIZES</text>
+<path d="M170 385H300 M600 385H730" stroke="url(#o)" stroke-width="8" stroke-linecap="round"/>
+<text x="450" y="404" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="48" font-weight="700" letter-spacing="18" fill="#f36b12">PONTO</text>
+</svg>
