@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seu Elizes Ponto</title>
+<link rel="icon" type="image/png" href="./favicon-elizes.png">
+<link rel="apple-touch-icon" href="./favicon-elizes.png">
+
+<script>
+document.addEventListener("submit",function(ev){
+ const form=ev.target;
+ if(form && form.id==="authForm" && form.dataset.ready!=="yes"){
+   ev.preventDefault(); ev.stopImmediatePropagation();
+   const msg=document.getElementById("message");
+   if(msg){msg.textContent="O login ainda não terminou de carregar. Atualize a página; se continuar, confira a conexão com o serviço de acesso.";msg.className="notice error";msg.classList.remove("hidden");}
+ }
+},true);
+window.addEventListener("error",function(ev){
+ const msg=document.getElementById("message");
+ if(msg && !msg.textContent){
+   msg.textContent="Falha ao iniciar o sistema: "+(ev.message||"erro de JavaScript")+". Atualize a página e tente novamente.";
+   msg.className="notice error";msg.classList.remove("hidden");
+ }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>');}
+</script>
+<style>
+:root{--orange:#f36b12;--ink:#20252b;--muted:#68717c;--bg:#f4f5f7;--line:#e5e7eb}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px Inter,system-ui,Arial;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:12px 15px;background:var(--orange);color:white;font-weight:750}button.secondary{background:#fff;color:#222;border:1px solid var(--line)}button:disabled{opacity:.6;cursor:wait}.wrap{max-width:1120px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:-22px -22px 22px;padding:16px 22px;background:#fff;border-bottom:1px solid #e5e7eb;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:15px}.brand img{width:240px;height:120px;max-height:120px;object-fit:contain;object-position:center;background:transparent;border:0;border-radius:0;display:block;mix-blend-mode:multiply}.brand h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px}.panel,.stat{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 3px 12px #10182808}.panel h2{margin:0 0 8px;font-size:19px}.auth{max-width:500px;margin:25px auto}.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}.field label{font-size:13px;font-weight:700}.field input,.field select{width:100%;padding:12px;border:1px solid #d5d9df;border-radius:9px;background:#fff}.hidden{display:none!important}.notice{padding:12px;border-radius:10px;background:#fff3e8;color:#88400e;margin:12px 0}.good{background:#eaf7ed;color:#216e39}.error{background:#fff0f0;color:#a32121}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.stat strong{display:block;font-size:25px;margin-top:8px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tabs button{background:white;color:#333;border:1px solid var(--line)}.tabs button.active{background:var(--orange);color:white}.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.day{border:1px solid var(--line);padding:10px;border-radius:10px}.day label{display:flex;gap:8px;align-items:center;font-size:13px}.employee{padding:13px 0;border-bottom:1px solid var(--line)}.employee:last-child{border:0}.punch{width:100%;padding:18px;font-size:16px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}@media(max-width:600px){.wrap{padding:13px}.panel{padding:15px}.brand{gap:10px}.brand img{width:118px;height:76px;max-height:76px}.brand h1{font-size:18px}.sub{font-size:12px}.top{align-items:center;margin:-13px -13px 18px;padding:12px 13px}}
+
+/* Login premium Seu Elizes: layout responsivo em laranja, branco e grafite */
+body{background:radial-gradient(ellipse at 50% 35%,#fff 0%,#fff 38%,#f5f5f6 100%);min-height:100vh}
+.wrap{max-width:1600px;padding:0 26px 22px}
+.login-layout{min-height:100vh;display:grid;grid-template-columns:minmax(190px,1fr) minmax(430px,560px) minmax(190px,1fr);gap:34px;align-items:center;position:relative;overflow:hidden}
+.login-layout:before{content:"";position:absolute;z-index:0;left:-180px;top:-180px;width:360px;height:120%;background:linear-gradient(140deg,#f36b12 0 18%,#fff 18% 100%);opacity:.08;transform:skewX(-10deg);pointer-events:none}
+.login-layout:after{content:"";position:absolute;z-index:0;right:-220px;bottom:-280px;width:600px;height:600px;border-radius:50%;background:linear-gradient(135deg,#ffb06e,#f36b12);opacity:.11;pointer-events:none}
+.promo-left,.promo-right,.login-center{position:relative;z-index:1}
+.promo-left{padding:30px 8px 30px 14px;max-width:350px;justify-self:end}
+.eyebrow{font-size:12px;letter-spacing:1.7px;line-height:1.7;color:#6b7280;border-left:3px solid var(--orange);padding-left:13px;margin-bottom:30px}
+.promo-left h2{font-size:clamp(25px,2.1vw,37px);line-height:1.08;letter-spacing:-1px;margin:0 0 18px;font-weight:850}
+.promo-left h2 span{display:block;color:var(--orange)}
+.promo-left p{font-size:16px;line-height:1.65;color:#59616c;max-width:280px;margin:0 0 25px}
+.promo-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;border-top:2px solid var(--orange);padding-top:18px}
+.promo-mini-grid>div{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.promo-mini-grid b{display:grid;place-items:center;width:52px;height:52px;border:1px solid #f7a56d;border-radius:13px;color:var(--orange);font-size:27px;background:#fffaf6}
+.promo-mini-grid span{font-size:10px;line-height:1.4;font-weight:800;color:#454b54;letter-spacing:.3px}
+.login-center{width:100%;max-width:560px;justify-self:center;display:flex;flex-direction:column;align-items:stretch;padding:20px 0}
+.top{background:transparent;border:0;margin:0 0 20px;padding:0;justify-content:center;min-height:0}
+.brand{flex-direction:column;gap:8px;text-align:center;width:100%}
+.brand img{width:min(100%,390px);height:158px;max-height:158px;object-fit:contain;object-position:center;background:transparent;border:0;border-radius:0;mix-blend-mode:multiply}
+.brand h1{font-size:30px;letter-spacing:-.7px;margin:0;color:#20252b}
+.sub{font-size:14px}
+.brand .sub{font-size:15px;margin-top:4px}
+.auth{width:100%;max-width:none;margin:8px 0 0;padding:25px 26px 22px;border-radius:20px;border:1px solid #e9e9eb;box-shadow:0 18px 45px #17202b12;background:rgba(255,255,255,.94)}
+.auth h2{font-size:22px;letter-spacing:-.5px}
+.auth>p.sub{margin:8px 0 15px}
+.field{gap:7px;margin:13px 0}
+.field label{font-size:13px}
+.field input{padding:13px 14px;border-radius:10px;background:#edf3ff;border-color:#dce4f0;min-height:48px}
+#authSubmit{margin-top:3px;min-height:49px;border-radius:11px;background:linear-gradient(100deg,#f36b12,#ff790d);box-shadow:0 6px 14px #f36b1226;font-size:15px}
+#authSubmit span{font-size:20px;margin-left:8px;vertical-align:-1px}
+#toggleText{margin:16px 0 9px}
+#toggle{min-height:44px}
+.login-footer{display:flex;align-items:center;gap:12px;margin-top:22px;color:#9299a3;font-size:10px;letter-spacing:2px;font-weight:750;justify-content:center;text-align:center}
+.login-footer:before,.login-footer:after{content:"";height:1px;background:#d6d9dd;flex:1}
+.login-footer span{font-size:24px;color:var(--orange);letter-spacing:0}
+.promo-right{display:flex;flex-direction:column;gap:25px;max-width:330px;justify-self:start;padding:25px 0}
+.feature{display:flex;align-items:center;gap:14px}
+.feature>b{width:56px;height:56px;flex:0 0 56px;display:grid;place-items:center;border-radius:50%;background:#fff0e5;color:var(--orange);font-size:28px;font-weight:600}
+.feature>div{display:flex;flex-direction:column;gap:5px}
+.feature strong{font-size:14px;color:#20252b}
+.feature span{font-size:12px;line-height:1.5;color:#707782}
+#admin,#staff{max-width:1120px;margin:0 auto}
+@media(max-width:1050px){.login-layout{grid-template-columns:minmax(0,1fr) minmax(400px,540px);gap:25px}.promo-left{display:none}.promo-right{max-width:260px}.login-center{grid-column:1;grid-row:1;justify-self:end}.promo-right{grid-column:2;grid-row:1}}
+@media(max-width:760px){.wrap{padding:0 14px 18px}.login-layout{display:flex;flex-direction:column;justify-content:center;gap:0;min-height:100svh;padding:12px 0}.promo-right{display:none}.login-center{max-width:520px;padding:12px 0}.top{margin-bottom:14px}.brand img{width:min(80vw,300px);height:112px;max-height:112px}.brand h1{font-size:24px}.brand .sub{font-size:12px}.auth{padding:21px 18px;border-radius:16px}.login-footer{font-size:8px;letter-spacing:1.3px;margin-top:17px}.login-footer:before,.login-footer:after{min-width:10px}}
+@media(max-width:380px){.brand img{height:95px}.brand h1{font-size:21px}.auth{padding:18px 15px}.login-footer{letter-spacing:.6px}}
+
+#loginLayout:has(#auth.hidden){display:none}.app-logout{position:fixed;top:16px;right:20px;z-index:50}
+ 
+/* Área profissional: painel pessoal e folha digital */
+#staff{max-width:1120px;margin:26px auto}
+.prof-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.prof-kicker{color:#f36b12;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+.prof-head h2{font-size:clamp(24px,3vw,34px);margin:5px 0}
+.prof-head p{margin:0;color:#737b86}
+.prof-date{border:1px solid #e6e8ec;background:#fff;border-radius:14px;padding:12px 16px;color:#303640;font-weight:700}
+.prof-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}
+.prof-stat{background:#fff;border:1px solid #e7e9ed;border-radius:18px;padding:18px;box-shadow:0 8px 24px #18223008}
+.prof-stat .stat-label{color:#717986;font-size:13px;font-weight:650}
+.prof-stat strong{display:block;font-size:clamp(20px,2.4vw,29px);margin:9px 0 6px;color:#20252b}
+.prof-stat small{color:#818894;font-size:12px}
+.status-pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800}
+.status-pill:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.status-green{background:#e8f8ee;color:#168344}
+.status-yellow{background:#fff5d8;color:#9a6a00}
+.status-red{background:#ffebeb;color:#c22f2f}
+.status-neutral{background:#eef1f5;color:#596270}
+.prof-main-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:16px;align-items:start}
+.prof-card{background:#fff;border:1px solid #e7e9ed;border-radius:18px;padding:22px;box-shadow:0 8px 24px #18223008;min-width:0}
+.prof-card h3{font-size:18px;margin:0 0 5px}
+.prof-card .card-sub{font-size:13px;color:#7a828e;margin:0 0 18px}
+.punch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.punch-grid .punch{border:1px solid #f6b17d;background:#fff8f2;color:#bd5108;border-radius:12px;padding:14px 10px;font-weight:750;min-height:52px}
+.punch-grid .punch:hover{background:#fff0e3}
+.punch-grid .punch:disabled{opacity:.5}
+.prof-timeline{display:grid;gap:10px}
+.prof-time-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #f0f1f3;padding:10px 0}
+.prof-time-row:last-child{border-bottom:0}
+.prof-time-row span{color:#727b87;font-size:13px}
+.prof-time-row strong{font-variant-numeric:tabular-nums;font-size:15px}
+.prof-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 15px}
+.prof-legend span{font-size:11px;font-weight:750;border-radius:999px;padding:6px 9px}
+.prof-table-wrap{overflow:auto}
+.prof-timesheet{border-collapse:separate;border-spacing:0;width:100%;min-width:800px;font-size:12px}
+.prof-timesheet th{background:#f7f8fa;color:#525b67;text-align:left;padding:12px 10px;border-bottom:1px solid #e5e8ec;white-space:nowrap}
+.prof-timesheet td{padding:11px 10px;border-bottom:1px solid #edf0f3;white-space:nowrap}
+.prof-timesheet tr:last-child td{border-bottom:0}
+.prof-timesheet .day-cell{font-weight:800}
+.prof-timesheet .good-cell{color:#168344;font-weight:750}
+.prof-timesheet .warn-cell{color:#9a6a00;font-weight:750}
+.prof-timesheet .bad-cell{color:#c22f2f;font-weight:750}
+.prof-empty{padding:24px;text-align:center;color:#818894}
+@media(max-width:850px){.prof-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.prof-main-grid{grid-template-columns:1fr}}
+@media(max-width:520px){#staff{margin:12px auto}.prof-stat{padding:14px}.prof-card{padding:16px}.punch-grid{grid-template-columns:1fr}.prof-date{width:100%}}
+
+/* Correções: avisos visíveis em qualquer tela + botões de modo */
+#message{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;width:min(92vw,560px);margin:0;box-shadow:0 10px 30px #0003;cursor:pointer;font-weight:650}
+.notice.good{background:#e8f8ee;color:#168344}
+.notice.error{background:#ffebeb;color:#c22f2f}
+.access-choices button{border:1px solid #e5e7eb;background:#fff;color:#222;padding:13px 10px;border-radius:12px;font-weight:700}
+.access-choices button.on{border-color:#f36b12;color:#c9570b;background:#fff7f1}
+
+/* v3: ao vivo, ranking, fotos */
+.status-blue{background:#e8f0ff;color:#2457c5}
+.av{border-radius:50%;object-fit:cover;flex:0 0 auto;display:inline-grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 8px #0002;background:#fff0e5}
+.av-ini{color:#f36b12;font-weight:850}
+[data-avid],[data-selfav]{cursor:pointer;transition:.15s}[data-avid]:hover,[data-selfav]:hover{outline:3px solid #f36b12;outline-offset:1px}
+.emp-row{display:flex;align-items:center;gap:14px}.emp-info{flex:1;min-width:0}
+.photo-btn{display:inline-block;cursor:pointer;border:1px solid #dfe3e8;background:#fff;color:#222;border-radius:10px;padding:9px 12px;font-weight:700;font-size:13px}
+.live-head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.live-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#e53935;margin-right:4px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #e5393577}70%{box-shadow:0 0 0 10px #e5393500}100%{box-shadow:0 0 0 0 #e5393500}}
+.live-summary{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.live-card{border:1px solid #e7e9ed;border-left:6px solid #c5cad2;border-radius:16px;padding:16px;background:#fff;box-shadow:0 6px 18px #18223008}
+.live-card.g{border-left-color:#1fa355}.live-card.y{border-left-color:#e0a200}.live-card.r{border-left-color:#d93636}.live-card.b{border-left-color:#3b6fe0}
+.live-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}.live-top b{font-size:16px}.live-top .sub{font-size:12px}
+.punch-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+.punch-mini div{background:#f7f8fa;border-radius:10px;padding:8px 4px;text-align:center}
+.punch-mini small{display:block;font-size:10px;color:#7a828e;font-weight:700}.punch-mini strong{font-size:14px;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:99px;background:#eceef2;overflow:hidden;margin:8px 0 6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#f36b12,#ff9a4d)}
+.live-foot{font-size:12px;color:#626b77;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.legend-box{background:#fff8f2;border:1px solid #fbd9bf;border-radius:12px;padding:12px 14px;font-size:13px;line-height:2;margin:10px 0 14px}
+.rank-row{display:flex;align-items:center;gap:14px;border:1px solid #e7e9ed;border-radius:16px;padding:14px 16px;margin:10px 0;background:#fff}
+.rank-row.top0{background:linear-gradient(100deg,#fff8dc,#fff);border-color:#f0d36b}.rank-row.top1{background:linear-gradient(100deg,#f3f4f6,#fff);border-color:#cfd3da}.rank-row.top2{background:linear-gradient(100deg,#fdf0e6,#fff);border-color:#e3b58d}
+.rank-pos{font-size:20px;font-weight:850;width:38px;color:#69717d}
+.rank-info{flex:1;min-width:0}.rank-info b{font-size:16px}.rank-info span{display:block;font-size:12px;color:#727b87;margin-top:3px}
+.rank-score{text-align:center;min-width:86px}.rank-score .medal{font-size:34px;line-height:1}.rank-score strong{display:block;font-size:18px}.rank-score small{color:#727b87;font-weight:700}
+.sheet-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 14px}
+.sheet-head .pills{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:560px){.rank-row{flex-wrap:wrap}.rank-score{margin-left:auto}}
+</style></head>
+<body><div id="message" class="notice hidden" role="alert" title="Clique para fechar"></div><div class="wrap">
+<button id="logout" class="secondary hidden app-logout">Sair</button>
+<div class="login-layout" id="loginLayout">
+<aside class="promo-left">
+<div class="eyebrow">DISCIPLINA<br>ORGANIZAÇÃO<br>RESULTADOS</div>
+<h2>NOSSA EQUIPE FAZ <span>A DIFERENÇA</span></h2>
+<p>Mais organização, mais produtividade e um ambiente ainda mais forte.</p>
+<div class="promo-mini-grid">
+<div><b>♧</b><span>EQUIPE<br>VALORIZADA</span></div>
+<div><b>▥</b><span>GESTÃO<br>EFICIENTE</span></div>
+<div><b>✓</b><span>ROTINA<br>ORGANIZADA</span></div>
+</div>
+</aside>
+<main class="login-center">
+<header class="top"><div class="brand"><img src="./logo-seu-elizes.png" alt="Barbearia Seu Elizes Prime"><div class="brand-copy"><h1>Seu Elizes Ponto</h1><div class="sub">Controle de jornada • Barbearia Seu Elizes</div></div></div></header>
+<section id="auth" class="panel auth"><div class="access-choices" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 22px">
+<button id="chooseProfessional" type="button" class="secondary">♙ Área profissional</button>
+<button id="chooseAdmin" type="button" class="secondary">⚙ Área administrativa</button>
+</div>
+<h2 id="authTitle">Acessar o sistema</h2><p class="sub">Entre com seu e-mail e senha.</p><form id="authForm"><div class="field"><label>E-mail</label><input id="email" type="email" required autocomplete="username"></div><div class="field"><label>Senha</label><input id="password" type="password" required minlength="8" autocomplete="current-password"></div><button id="authSubmit" style="width:100%">Entrar <span aria-hidden="true">→</span></button></form><button id="professionalAccess" class="secondary hidden" type="button" style="width:100%;margin:0 0 12px;border-color:#f6a36b;color:#c9570b">♙ &nbsp; Área do profissional — Minha folha de ponto</button>
+<p id="toggleText" class="sub">Primeiro acesso do administrador?</p><button id="toggle" class="secondary">♙ &nbsp; Criar conta de administrador</button></section>
+<footer class="login-footer"><span>✂</span><div>BARBEARIA SEU ELIZES • CONTROLE DE JORNADA</div></footer>
+</main>
+<aside class="promo-right">
+<div class="feature"><b>◷</b><div><strong>Controle de jornada</strong><span>Registre entradas, saídas e intervalos.</span></div></div>
+<div class="feature"><b>▥</b><div><strong>Relatórios completos</strong><span>Acompanhe a produtividade da equipe.</span></div></div>
+<div class="feature"><b>♧</b><div><strong>Gestão de equipe</strong><span>Tudo organizado em um só lugar.</span></div></div>
+<div class="feature"><b>◇</b><div><strong>Mais segurança</strong><span>Dados protegidos e acesso individual.</span></div></div>
+</aside>
+</div>
+<section id="admin" class="hidden"><div class="grid"><div class="stat"><span class="sub">Funcionárias cadastradas</span><strong id="count">0</strong></div><div class="stat"><span class="sub">Registros neste mês</span><strong id="recordsCount">0</strong></div><div class="stat"><span class="sub">Perfil</span><strong style="font-size:22px">Administrador</strong></div></div>
+<div class="tabs"><button class="active" data-tab="live">● Ao vivo</button><button data-tab="rank">🏆 Ranking</button><button data-tab="sheet">Folha de ponto</button><button data-tab="staff">Funcionárias</button><button data-tab="report">Relatório mensal</button></div>
+<div id="liveTab" class="panel tabpanel"><div class="live-head"><div><h2><span class="live-dot"></span> Ponto ao vivo — hoje</h2><p class="sub">Veja quem já bateu o ponto, quem está em intervalo e como está o dia de cada funcionária. Atualiza sozinho a cada 15 segundos.</p></div><div class="sub">Atualizado às <b id="liveStamp">—</b> <button class="secondary" id="liveNow" type="button" style="padding:8px 12px;margin-left:6px">Atualizar</button></div></div><div id="liveSummary" class="live-summary"></div><div id="liveGrid" class="live-grid"><p class="sub">Carregando…</p></div></div>
+<div id="rankTab" class="panel tabpanel hidden"><h2>🏆 Ranking de pontualidade</h2><p class="sub">Quem bate o ponto certinho e cumpre a jornada sobe no ranking.</p><div class="legend-box">🥇 <b>Ouro</b>: 85 pontos ou mais &nbsp;·&nbsp; 🥈 <b>Prata</b>: 60 a 84 &nbsp;·&nbsp; 🥉 <b>Bronze</b>: abaixo de 60<br>Cada dia vale: <span class="status-pill status-green">Verde = 100</span> <span class="status-pill status-yellow">Amarelo (hora extra) = 75</span> <span class="status-pill status-red">Vermelho (faltou hora) = 40</span> <span class="status-pill status-neutral">Ponto incompleto = 0</span></div><div class="grid"><div class="field"><label>Mês</label><input id="rankMonth" type="month"></div></div><div id="rankList"></div></div>
+<div id="sheetTab" class="panel tabpanel hidden"><h2>Folha de ponto da funcionária</h2><p class="sub">Todas as batidas de cada dia, horas trabalhadas e situação.</p><div class="grid"><div class="field"><label>Funcionária</label><select id="sheetEmp"></select></div><div class="field"><label>Mês</label><input id="sheetMonth" type="month"></div></div><div id="sheetOut"></div></div>
+<div id="staffTab" class="panel tabpanel hidden"><h2>Cadastrar funcionária</h2><p class="sub">Você cria a conta dela e define os horários. Entregue o e-mail e a senha temporária à funcionária.</p>
+<form id="employeeForm"><div class="grid"><div class="field"><label>Nome completo</label><input id="empName" required></div><div class="field"><label>Função</label><input id="empRole" value="Funcionária" required></div><div class="field"><label>E-mail de acesso</label><input id="empEmail" type="email" required></div><div class="field"><label>Senha temporária (mínimo 8 caracteres)</label><input id="empPassword" type="password" minlength="8" required></div><div class="field"><label>Carga semanal</label><select id="load"><option value="2640">44 horas</option><option value="2400">40 horas</option><option value="2200">36h40</option></select></div><div class="field"><label>Observações</label><input id="notes"></div><div class="field"><label>Foto da funcionária (opcional)</label><input id="empPhoto" type="file" accept="image/*"></div></div>
+<div class="field"><label>Dias de trabalho (desmarque as folgas)</label><div class="days" id="days"></div></div><div class="grid"><div class="field"><label>Entrada</label><input id="entry" type="time" value="08:30" required></div><div class="field"><label>Saída para intervalo</label><input id="break1" type="time" value="12:30" required></div><div class="field"><label>Retorno do intervalo</label><input id="break2" type="time" value="15:12" required></div><div class="field"><label>Saída final</label><input id="exit" type="time" value="20:00" required></div></div><button id="createBtn">Cadastrar funcionária e gerar acesso</button></form><div id="employees" style="margin-top:20px"></div></div>
+<div id="reportTab" class="panel tabpanel hidden"><h2>Relatório mensal</h2><div class="grid"><div class="field"><label>Mês</label><input id="month" type="month"></div><div class="field" style="justify-content:end"><button id="loadReport">Consultar relatório</button></div></div><div id="report" class="tablewrap"></div><button class="secondary" id="csv" style="margin-top:12px">Exportar CSV</button></div></section>
+<section id="staff" class="hidden">
+<div class="prof-head">
+  <div style="display:flex;align-items:center;gap:14px"><span id="myAvatar"></span><div><div class="prof-kicker">Minha área profissional</div><h2 id="hello">Olá!</h2><p>Seu ponto, sua jornada e seu histórico em um só lugar.</p></div></div>
+  <div class="prof-date"><span id="today"></span></div>
+</div>
+<div class="prof-stats">
+  <div class="prof-stat"><div class="stat-label">Horas trabalhadas hoje</div><strong id="workedToday">0h 00min</strong><small>Tempo registrado no dia</small></div>
+  <div class="prof-stat"><div class="stat-label">Situação de hoje</div><strong style="font-size:17px;margin:12px 0"><span id="todayStatus" class="status-pill status-neutral">Aguardando ponto</span></strong><small id="statusDetail">Registre seus horários corretamente</small></div>
+  <div class="prof-stat"><div class="stat-label">Horas extras</div><strong id="overtimeToday">0h 00min</strong><small>Acima da jornada prevista</small></div>
+  <div class="prof-stat"><div class="stat-label">Saldo de hoje</div><strong id="balanceToday">—</strong><small id="balanceDetail">Comparação com sua jornada</small></div>
+</div>
+<div class="prof-main-grid">
+  <div class="prof-card">
+    <h3>Registrar minha jornada</h3><p class="card-sub">Marque cada horário no momento em que acontecer.</p>
+    <div class="punch-grid">
+      <button class="punch" data-punch="entrada">↗ Marcar entrada</button>
+      <button class="punch" data-punch="inicio_intervalo">Ⅱ Iniciar intervalo</button>
+      <button class="punch" data-punch="fim_intervalo">▶ Voltar do intervalo</button>
+      <button class="punch" data-punch="saida">✓ Marcar saída</button>
+    </div>
+    <div style="margin-top:18px;padding:14px;border-radius:12px;background:#f8f9fb;color:#626b77;font-size:13px">Confira os horários antes de sair. Os registros ficam vinculados ao seu acesso individual.</div>
+  </div>
+  <div class="prof-card">
+    <h3>Resumo de hoje</h3><p class="card-sub">Horários registrados e situação da jornada.</p>
+    <div class="prof-timeline" id="todayTimeline">
+      <div class="prof-time-row"><span>Entrada</span><strong>—</strong></div>
+      <div class="prof-time-row"><span>Início do intervalo</span><strong>—</strong></div>
+      <div class="prof-time-row"><span>Retorno do intervalo</span><strong>—</strong></div>
+      <div class="prof-time-row"><span>Saída</span><strong>—</strong></div>
+    </div>
+  </div>
+</div>
+<div class="prof-card" style="margin-top:16px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div><h3>Minha folha de ponto</h3><p class="card-sub">Histórico mensal com comparação da jornada e alertas de horas.</p></div>
+    <label style="font-size:12px;color:#6f7782;font-weight:700">Mês <input id="staffMonth" type="month" style="margin-left:8px;padding:9px;border:1px solid #dfe3e8;border-radius:10px"></label>
+  </div>
+  <div class="prof-legend"><span class="status-green">Verde · Jornada correta</span><span class="status-yellow">Amarelo · Hora extra</span><span class="status-red">Vermelho · Horas faltantes</span></div>
+  <div id="myRecords" class="prof-table-wrap"><div class="prof-empty">Carregando seus registros…</div></div>
+</div>
+</section>
+</div>
+<script>
+const SUPABASE_URL="https://edpbhcnhxhvnqhnajcaa.supabase.co".trim(); const SUPABASE_KEY="sb_publishable_soCSbGnRuDaZ2-39IPhbMQ_2_kpT13k".trim();
+if(!window.supabase || typeof window.supabase.createClient!=="function"){
+ const loadMsg=document.getElementById("message");
+ if(loadMsg){loadMsg.textContent="Não foi possível carregar o serviço de acesso. Verifique sua internet e tente novamente.";loadMsg.className="notice error";loadMsg.classList.remove("hidden");}
+ throw new Error("Biblioteca de acesso Supabase indisponível");
+}
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);let user=null,company=null,employee=null,employees=[],records=[],signup=false,accessMode="auto";
+const first=r=>({data:(r.data&&r.data[0])||null,error:r.error});
+const $=id=>document.getElementById(id), dayNames=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+function message(t,k=""){let e=$("message");e.textContent=t;e.className="notice "+(k==="good"?"good":k==="error"?"error":"");}
+let msgTimer=null;
+function hideMsg(){clearTimeout(msgTimer);$("message").classList.add("hidden")}
+function showMsg(t,k){message(t,k);$("message").classList.remove("hidden");clearTimeout(msgTimer);msgTimer=setTimeout(hideMsg,k==="good"?6000:12000)}
+$("message").onclick=hideMsg;
+function dateNow(){let d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function mins(t){if(!t)return null;let p=t.slice(0,5).split(":").map(Number);return p[0]*60+p[1]}
+function duration(n){let s=n<0?"-":"";n=Math.abs(n||0);return s+Math.floor(n/60)+"h "+String(n%60).padStart(2,"0")+"min"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("days").innerHTML=dayNames.map((n,i)=>'<div class="day"><label><input type="checkbox" data-day="'+i+'" '+([1,2,3,4,5].includes(i)?"checked":"")+'> '+n+'</label></div>').join("");
+$("month").value=dateNow().slice(0,7);
+function setMode(m){
+ accessMode=m;signup=false;
+ $("chooseProfessional").classList.toggle("on",m==="professional");
+ $("chooseAdmin").classList.toggle("on",m==="admin");
+ $("authTitle").textContent=m==="professional"?"Área profissional":m==="admin"?"Área administrativa":"Acessar o sistema";
+ $("authSubmit").innerHTML=(m==="professional"?"Entrar na minha folha de ponto":m==="admin"?"Entrar na administração":"Entrar")+' <span aria-hidden="true">→</span>';
+ $("toggleText").textContent=m==="professional"?"Entre com seu e-mail e senha para acessar sua folha de ponto.":m==="admin"?"Acesso do administrador para gerenciar funcionárias e relatórios.":"Primeiro acesso do administrador?";
+ $("toggle").textContent="♙  Criar conta de administrador";
+ $("toggle").classList.toggle("hidden",m==="professional");
+ $("password").autocomplete="current-password";
+ hideMsg();$("email").focus();
+}
+$("chooseProfessional").onclick=()=>setMode("professional");
+$("chooseAdmin").onclick=()=>setMode("admin");
+$("professionalAccess").onclick=()=>setMode("professional");
+$("toggle").onclick=()=>{accessMode="admin";signup=!signup;$("chooseProfessional").classList.remove("on");$("chooseAdmin").classList.add("on");$("authTitle").textContent=signup?"Criar conta do administrador":"Área administrativa";$("authSubmit").innerHTML=(signup?"Criar conta":"Entrar na administração")+' <span aria-hidden="true">→</span>';$("toggle").textContent=signup?"Voltar para entrar":"♙  Criar conta de administrador";$("toggleText").textContent=signup?"Use somente para a conta do responsável.":"Acesso do administrador para gerenciar funcionárias e relatórios.";$("password").autocomplete=signup?"new-password":"current-password";hideMsg()};
+$("authForm").dataset.ready="yes";$("authForm").onsubmit=async e=>{
+ e.preventDefault();hideMsg();
+ const btn=$("authSubmit"),label=signup?"Criar conta":"Entrar";
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){showMsg("Informe seu e-mail e sua senha.","error");return}
+ if(!sb){showMsg("O serviço de acesso não carregou. Atualize a página; se continuar, verifique sua conexão e tente novamente.","error");return}
+ btn.disabled=true;btn.textContent=signup?"Criando conta...":"Verificando acesso...";
+ try{
+   const r=signup?await sb.auth.signUp({email,password,options:{data:{perfil:"admin"}}}):await sb.auth.signInWithPassword({email,password});
+   if(r.error)throw r.error;
+   if(signup&&!r.data.session){showMsg("Conta criada. Confira seu e-mail para confirmar o cadastro, se solicitado.","good");return}
+   if(!r.data.user)throw new Error("O acesso não foi confirmado. Confira os dados e tente novamente.");
+   user=r.data.user;
+   await route();
+ }catch(err){
+   const raw=String(err?.message||"Erro desconhecido");
+   let friendly=raw;
+   if(/invalid login credentials/i.test(raw))friendly="E-mail ou senha incorretos. Confira os dados e tente novamente.";
+   else if(/email not confirmed/i.test(raw))friendly="Seu e-mail ainda não foi confirmado. Confira sua caixa de entrada.";
+   else if(/fetch|network|failed to fetch/i.test(raw))friendly="Não foi possível conectar ao serviço de acesso. Verifique a internet e tente novamente.";
+   showMsg("Não foi possível entrar: "+friendly,"error");
+ }finally{
+   btn.disabled=false;
+   btn.innerHTML=label==="Entrar"?'Entrar <span aria-hidden="true">→</span>':label;
+ }
+};
+$("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
+async function route(){
+  hide("auth");hide("admin");hide("staff");$("logout").classList.remove("hidden");
+  try{
+    const owner=await sb.from("se_ponto_empresas").select("*").eq("owner_user_id",user.id).limit(1).then(first);
+    if(owner.error)throw owner.error;
+    const staff=await sb.from("se_ponto_funcionarios").select("*").eq("auth_user_id",user.id).limit(1).then(first);
+    if(staff.error)throw staff.error;
+    if(staff.data&&accessMode!=="professional"){
+      if(accessMode==="admin"||owner.data)throw new Error("Cadastro profissional não tem acesso à área administrativa. Use a Área profissional.");
+    }
+    if(accessMode==="admin"){
+      if(owner.data){company=owner.data;show("admin");await loadEmployees();return;}
+      if(user.user_metadata?.perfil==="admin"){
+        const created=await sb.from("se_ponto_empresas").insert({owner_user_id:user.id,nome:"Barbearia Seu Elizes"}).select("*").single();
+        if(created.error)throw created.error;
+        company=created.data;show("admin");await loadEmployees();return;
+      }
+      throw new Error("Este usuário não tem perfil de administrador.");
+    }
+    if(accessMode==="professional"){
+      if(staff.data){employee=staff.data;await renderStaff();return;}
+      throw new Error("Este usuário ainda não está vinculado a um cadastro profissional. Peça ao administrador para gerar seu acesso.");
+    }
+    if(staff.data){employee=staff.data;await renderStaff();return;}
+    if(owner.data){company=owner.data;show("admin");await loadEmployees();return;}
+    throw new Error("Seu usuário não tem um perfil autorizado. Peça ao administrador para cadastrar seu acesso.");
+  }catch(e){
+    await sb.auth.signOut();user=null;showMsg("Acesso não autorizado: "+e.message,"error");show("auth");hide("admin");hide("staff");$("logout").classList.add("hidden");
+  }
+}
+function show(id){$(id).classList.remove("hidden")}function hide(id){$(id).classList.add("hidden")}
+$("employeeForm").onsubmit=async e=>{e.preventDefault();let btn=$("createBtn");btn.disabled=true;try{let session=(await sb.auth.getSession()).data.session;if(!session)throw Error("Entre novamente como administrador.");let jornada=[...document.querySelectorAll("[data-day]")].map(ch=>{let work=ch.checked,e= $("entry").value,b=$("break1").value,c=$("break2").value,d=$("exit").value;return{dia_semana:+ch.dataset.day,trabalha:work,entrada:e,inicio_intervalo:b,fim_intervalo:c,saida:d,minutos_previstos:work?Math.max(0,(mins(b)-mins(e))+(mins(d)-mins(c))):0}});let res=await fetch(SUPABASE_URL+"/functions/v1/se-ponto-criar-funcionaria",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({nome:$("empName").value,email:$("empEmail").value,senha:$("empPassword").value,funcao:$("empRole").value,carga_semanal_minutos:+$("load").value,observacoes:$("notes").value,jornada})});let data;try{data=await res.json()}catch(_){throw Error("O serviço de criação de acesso não respondeu corretamente. Verifique se a função se-ponto-criar-funcionaria está publicada no Supabase.");}if(!res.ok||!data.success)throw Error(data.error||("Falha ao gerar acesso (HTTP "+res.status+"). Verifique a função se-ponto-criar-funcionaria no Supabase."));showMsg("Funcionária cadastrada. Entregue o link do site, e-mail e senha inicial.","good");const photoFile=$("empPhoto").files[0],beforeIds=employees.map(f=>f.id);$("employeeForm").reset();$("empRole").value="Funcionária";$("load").value="2640";$("entry").value="08:30";$("break1").value="12:30";$("break2").value="15:12";$("exit").value="20:00";$("days").innerHTML=dayNames.map((n,i)=>'<div class="day"><label><input type="checkbox" data-day="'+i+'" '+([1,2,3,4,5].includes(i)?"checked":"")+'> '+n+'</label></div>').join("");await loadEmployees();if(photoFile){const nf=employees.find(f=>!beforeIds.includes(f.id));if(nf){try{await savePhoto(nf.id,await fileToAvatar(photoFile));await loadEmployees()}catch(pe){showMsg("Funcionária cadastrada, mas a foto não foi salva: "+pe.message,"error")}}}}catch(err){showMsg(err.message,"error")}finally{btn.disabled=false}};
+async function renderStaff(){
+  show("staff");$("myAvatar").innerHTML=avatar(employee,64);$("hello").textContent="Olá, "+employee.nome+"!";$("today").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+  $("staffMonth").value=dateNow().slice(0,7);
+  $("staffMonth").onchange=loadMyRecords;
+  await loadMyRecords();
+}
+async function loadMyRecords(){
+  const month=$("staffMonth")?.value||dateNow().slice(0,7);
+  const first=month+"-01", last=month+"-"+String(new Date(+month.slice(0,4),+month.slice(5,7),0).getDate()).padStart(2,"0");
+  let q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).gte("data",first).lte("data",last).order("data",{ascending:false});
+  if(q.error){showMsg("Não foi possível carregar sua folha de ponto: "+q.error.message,"error");return}
+  let a=q.data||[],today=a.find(r=>r.data===dateNow());
+  if(!today && month===dateNow().slice(0,7)){let t=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).eq("data",dateNow()).limit(1).then(first);if(!t.error)today=t.data}
+  $("workedToday").textContent=duration(today?worked(today):0);
+  const labels=[["entrada","Entrada"],["inicio_intervalo","Início do intervalo"],["fim_intervalo","Retorno do intervalo"],["saida","Saída"]];
+  $("todayTimeline").innerHTML=labels.map(([k,label])=>'<div class="prof-time-row"><span>'+label+'</span><strong>'+(today?.[k]||"—")+'</strong></div>').join("");
+  let schedule=null;
+  try{let j=await sb.from("se_ponto_jornadas").select("*").eq("funcionario_id",employee.id).eq("dia_semana",new Date().getDay()).limit(1).then(first);schedule=j.data||null}catch(e){}
+  let expected=Number(schedule?.minutos_previstos||today?.minutos_previstos||0),actual=today?worked(today):0;
+  let status=$("todayStatus"),detail=$("statusDetail"),balance=$("balanceToday"),overtime=$("overtimeToday");
+  status.className="status-pill status-neutral";status.textContent="Aguardando ponto";detail.textContent="Registre seus horários corretamente";balance.textContent="—";$("balanceDetail").textContent="Comparação com sua jornada";overtime.textContent="0h 00min";
+  if(today?.entrada){
+    let delta=actual-expected;
+    if(today.saida && expected>0){
+      if(delta>TOL){status.className="status-pill status-yellow";status.textContent="Hora extra";detail.textContent="Você trabalhou acima da jornada prevista";overtime.textContent=duration(delta);balance.textContent="+"+duration(delta);$("balanceDetail").textContent="Acima da jornada";}
+      else if(delta<-TOL){status.className="status-pill status-red";status.textContent="Horas faltantes";detail.textContent="Jornada abaixo do previsto";balance.textContent=duration(delta);$("balanceDetail").textContent="Abaixo da jornada";}
+      else{status.className="status-pill status-green";status.textContent="Jornada correta";detail.textContent="Carga prevista cumprida";balance.textContent="0h 00min";$("balanceDetail").textContent="Dentro da jornada";}
+    }else{status.className="status-pill status-green";status.textContent="Ponto registrado";detail.textContent=today.saida?"Jornada concluída":"Jornada em andamento";if(expected>0&&actual>expected){overtime.textContent=duration(actual-expected);status.className="status-pill status-yellow";status.textContent="Hora extra";}}
+  }
+  $("myRecords").innerHTML=sheetHTML(a);
+}
+document.querySelectorAll("[data-punch]").forEach(b=>b.onclick=async()=>{b.disabled=true;try{let type=b.dataset.punch,date=dateNow(),q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).eq("data",date).limit(1).then(first);if(q.error)throw q.error;let now=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",hour12:false}),row=q.data;if(row?.[type])throw Error("Esse horário já foi registrado hoje.");if(!row){let j=await sb.from("se_ponto_jornadas").select("minutos_previstos").eq("funcionario_id",employee.id).eq("dia_semana",new Date().getDay()).limit(1).then(first);let x=await sb.from("se_ponto_registros").insert({funcionario_id:employee.id,data:date,criado_por:user.id,minutos_previstos:j.data?.minutos_previstos||0,tipo_ocorrencia:"normal",[type]:now});if(x.error)throw x.error}else{let x=await sb.from("se_ponto_registros").update({[type]:now,atualizado_em:new Date().toISOString(),criado_por:user.id}).eq("id",row.id);if(x.error)throw x.error}showMsg("Ponto registrado às "+now,"good");await loadMyRecords()}catch(err){showMsg(err.message,"error")}finally{b.disabled=false}});
+$("loadReport").onclick=async()=>{if(!employees.length){$("report").textContent="Cadastre uma funcionária primeiro.";return}let m=$("month").value;if(!m){showMsg("Escolha o mês do relatório.","error");return}let q=await sb.from("se_ponto_registros").select("*").in("funcionario_id",employees.map(f=>f.id)).gte("data",m+"-01").lte("data",m+"-"+String(new Date(+m.slice(0,4),+m.slice(5,7),0).getDate()).padStart(2,"0")).order("data");if(q.error){showMsg(q.error.message,"error");return}records=q.data||[];let rows=employees.map(f=>{let a=records.filter(r=>r.funcionario_id===f.id),w=a.reduce((s,r)=>s+worked(r),0),p=a.reduce((s,r)=>s+(r.minutos_previstos||0),0);return{name:f.nome,count:a.length,w,p,b:w-p}});$("report").innerHTML='<table><tr><th>Funcionária</th><th>Dias</th><th>Trabalhado</th><th>Previsto</th><th>Saldo</th></tr>'+rows.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+r.count+'</td><td>'+duration(r.w)+'</td><td>'+duration(r.p)+'</td><td style="color:'+(r.b<0?'#c62828':r.b>0?'#9a6700':'#258044')+'">'+duration(r.b)+'</td></tr>').join("")+'</table>'};
+$("csv").onclick=()=>{let rows=[["Funcionária","Data","Entrada","Início intervalo","Fim intervalo","Saída","Trabalhado","Previsto","Saldo"]];(records||[]).forEach(r=>{let f=employees.find(x=>x.id===r.funcionario_id);rows.push([f?.nome||"",r.data,r.entrada||"",r.inicio_intervalo||"",r.fim_intervalo||"",r.saida||"",duration(worked(r)),duration(r.minutos_previstos||0),duration(worked(r)-(r.minutos_previstos||0))])});let blob=new Blob(["\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\r\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="seu-elizes-ponto-"+$("month").value+".csv";a.click();URL.revokeObjectURL(a.href)};
+/* ===================== v3: ao vivo, ranking, folha e fotos ===================== */
+const TOL=5; /* tolerância (minutos) para considerar a jornada "correta" */
+let medals={},adminStarted=false,activeTab="live",liveTimer=null,liveChannel=null;
+const MEDAL={ouro:"🥇",prata:"🥈",bronze:"🥉"},MEDAL_NAME={ouro:"Ouro",prata:"Prata",bronze:"Bronze"};
+function nowMinutes(){const d=new Date();return d.getHours()*60+d.getMinutes()}
+function worked(r){
+ const a=mins(r.entrada);if(a==null)return 0;
+ const b=mins(r.inicio_intervalo),c=mins(r.fim_intervalo),d=mins(r.saida);
+ const now=(r.data===dateNow())?nowMinutes():null;
+ let n=0;const e1=b!=null?b:(d!=null?d:now);
+ if(e1!=null)n+=Math.max(0,e1-a);
+ if(c!=null){const e2=d!=null?d:now;if(e2!=null)n+=Math.max(0,e2-c)}
+ return n;
+}
+function dayStatus(r){
+ const expected=Number(r.minutos_previstos||0),actual=worked(r),today=r.data===dateNow();
+ if(!r.entrada)return{cls:"status-neutral",txt:"Sem ponto",key:"sem",delta:0,complete:false};
+ if(!r.saida){
+  if(today)return{cls:"status-neutral",txt:"Em andamento",key:"andamento",delta:0,complete:false};
+  return{cls:"status-red",txt:"Ponto incompleto",key:"incompleto",delta:0,complete:false};
+ }
+ if(expected>0){
+  const delta=actual-expected;
+  if(Math.abs(delta)<=TOL)return{cls:"status-green",txt:"Correto",key:"verde",delta,complete:true};
+  if(delta>0)return{cls:"status-yellow",txt:"Extra "+duration(delta),key:"amarelo",delta,complete:true};
+  return{cls:"status-red",txt:"Faltam "+duration(-delta),key:"vermelho",delta,complete:true};
+ }
+ return{cls:"status-green",txt:"Concluído",key:"verde",delta:0,complete:true};
+}
+function uniqByDate(a){const seen=new Set();return a.filter(r=>{if(seen.has(r.data))return false;seen.add(r.data);return true})}
+function monthRange(m){return[m+"-01",m+"-"+String(new Date(+m.slice(0,4),+m.slice(5,7),0).getDate()).padStart(2,"0")]}
+function hhmm(t){return t?String(t).slice(0,5):"—"}
+function sheetHTML(a){
+ a=uniqByDate(a||[]);
+ if(!a.length)return'<div class="prof-empty">Nenhum registro encontrado para este mês.</div>';
+ const rows=a.map(r=>{
+  const st=dayStatus(r),actualM=worked(r),dateLabel=(r.data||"").split("-").reverse().join("/");
+  return'<tr><td class="day-cell">'+dateLabel+'</td><td>'+hhmm(r.entrada)+'</td><td>'+hhmm(r.inicio_intervalo)+'</td><td>'+hhmm(r.fim_intervalo)+'</td><td>'+hhmm(r.saida)+'</td><td>'+duration(actualM)+'</td><td>'+(Number(r.minutos_previstos||0)?duration(Number(r.minutos_previstos)):"—")+'</td><td><span class="status-pill '+st.cls+'">'+st.txt+'</span></td></tr>';
+ });
+ return'<table class="prof-timesheet"><thead><tr><th>Dia</th><th>Entrada</th><th>Início intervalo</th><th>Retorno</th><th>Saída</th><th>Total trabalhado</th><th>Previsto</th><th>Situação</th></tr></thead><tbody>'+rows.join("")+'</tbody></table>';
+}
+/* ---- fotos ---- */
+function avatar(f,sz){
+ const st='width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*.38)+'px';
+ const tt=' title="Clique para '+(f&&f.foto_url?'trocar':'adicionar')+' a foto"';
+ const ed=(company&&f&&f.id)?' data-avid="'+f.id+'"'+tt:(!company&&employee&&f&&f.id===employee.id)?' data-selfav="1"'+tt:'';
+ if(f&&f.foto_url)return'<img class="av"'+ed+' style="'+st+'" src="'+esc(f.foto_url)+'" alt="Foto de '+esc(f.nome)+'">';
+ const ini=((f&&f.nome)||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+ return'<span class="av av-ini"'+ed+' style="'+st+'">'+esc(ini)+'</span>';
+}
+function fileToAvatar(file){return new Promise((res,rej)=>{
+ const img=new Image(),fr=new FileReader();
+ fr.onload=()=>{img.onload=()=>{const S=240,c=document.createElement("canvas");c.width=c.height=S;const x=c.getContext("2d"),m=Math.min(img.width,img.height);x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);res(c.toDataURL("image/jpeg",.82))};img.onerror=()=>rej(Error("Imagem inválida."));img.src=fr.result};
+ fr.onerror=()=>rej(Error("Não foi possível ler a imagem."));fr.readAsDataURL(file);
+})}
+async function savePhoto(id,dataUrl){
+ const x=await sb.from("se_ponto_funcionarios").update({foto_url:dataUrl}).eq("id",id).select("id");
+ if(x.error){
+  if(/foto_url|column/i.test(x.error.message))throw Error("falta criar a coluna da foto no Supabase. Rode o arquivo SQL-fotos.sql (veja o LEIA-ME).");
+  throw x.error;
+ }
+ if(!x.data||!x.data.length)throw Error("sem permissão para salvar a foto. Rode o arquivo SQL-fotos.sql no Supabase (veja o LEIA-ME).");
+}
+document.addEventListener("click",ev=>{
+ const el=ev.target.closest&&ev.target.closest("[data-avid]");if(!el)return;
+ const id=el.dataset.avid,inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+ inp.onchange=async()=>{const file=inp.files[0];if(!file)return;
+  try{await savePhoto(id,await fileToAvatar(file));showMsg("Foto salva.","good");await loadEmployees();selectTab(activeTab)}
+  catch(e){showMsg("Não foi possível salvar a foto: "+e.message,"error")}};
+ inp.click();
+});
+document.addEventListener("click",ev=>{
+ if(!(ev.target.closest&&ev.target.closest("[data-selfav]")))return;
+ const inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+ inp.onchange=async()=>{const file=inp.files[0];if(!file)return;
+  try{const d=await fileToAvatar(file),x=await sb.rpc("se_ponto_salvar_minha_foto",{p_foto:d});
+   if(x.error){if(/function|schema cache|does not exist/i.test(x.error.message))throw Error("peça ao administrador para rodar o SQL-fotos.sql no Supabase.");throw x.error}
+   employee.foto_url=d;$("myAvatar").innerHTML=avatar(employee,64);showMsg("Foto atualizada!","good")}
+  catch(e){showMsg("Não foi possível salvar a foto: "+e.message,"error")}};
+ inp.click();
+});
+/* ---- estatísticas / ranking ---- */
+function rankStats(recs){
+ const today=dateNow();let pts=0,n=0,g=0,y=0,r=0,inc=0,saldo=0;
+ uniqByDate(recs).forEach(x=>{
+  if(!x.entrada&&!x.saida)return;
+  if(x.data===today&&!x.saida)return;
+  const st=dayStatus(x);n++;
+  if(st.key==="verde"){pts+=100;g++}else if(st.key==="amarelo"){pts+=75;y++}else if(st.key==="vermelho"){pts+=40;r++}else{inc++}
+  if(st.complete)saldo+=st.delta;
+ });
+ const score=n?Math.round(pts/n):null;
+ return{n,g,y,r,inc,saldo,score,medal:n?(score>=85?"ouro":score>=60?"prata":"bronze"):null};
+}
+async function monthStats(month){
+ if(!employees.length)return[];
+ const[first,last]=monthRange(month);
+ const q=await sb.from("se_ponto_registros").select("*").in("funcionario_id",employees.map(f=>f.id)).gte("data",first).lte("data",last).order("data",{ascending:false});
+ if(q.error)throw q.error;
+ const recs=q.data||[];
+ return employees.map(f=>{const mine=recs.filter(r=>r.funcionario_id===f.id);return{f,recs:mine,st:rankStats(mine)}});
+}
+async function refreshMedals(){
+ try{const all=await monthStats(dateNow().slice(0,7));medals={};all.forEach(x=>{if(x.st.medal)medals[x.f.id]=x.st.medal})}catch(e){}
+}
+function medalTag(id){return medals[id]?' <span title="Medalha '+MEDAL_NAME[medals[id]]+'">'+MEDAL[medals[id]]+'</span>':""}
+async function loadRank(){
+ const m=$("rankMonth").value||dateNow().slice(0,7);
+ try{
+  const all=await monthStats(m);
+  if(m===dateNow().slice(0,7)){medals={};all.forEach(x=>{if(x.st.medal)medals[x.f.id]=x.st.medal})}
+  all.sort((a,b)=>(b.st.score??-1)-(a.st.score??-1)||b.st.n-a.st.n||a.f.nome.localeCompare(b.f.nome));
+  $("rankList").innerHTML=all.length?all.map((x,i)=>{
+   const s=x.st;
+   return'<div class="rank-row top'+(s.medal&&i<3?i:9)+'"><div class="rank-pos">'+(i+1)+'º</div>'+avatar(x.f,54)+'<div class="rank-info"><b>'+esc(x.f.nome)+'</b><span>'+esc(x.f.funcao||"Funcionária")+' · '+(s.n?(s.n+' dia(s): <b style="color:#168344">'+s.g+' verde</b> · <b style="color:#9a6a00">'+s.y+' amarelo</b> · <b style="color:#c22f2f">'+(s.r+s.inc)+' vermelho</b> · saldo '+duration(s.saldo)):"sem registros neste mês")+'</span></div><div class="rank-score">'+(s.medal?'<div class="medal">'+MEDAL[s.medal]+'</div><strong>'+s.score+' pts</strong><small>'+MEDAL_NAME[s.medal]+'</small>':'<small>Sem pontuação</small>')+'</div></div>';
+  }).join(""):'<p class="sub">Cadastre uma funcionária primeiro.</p>';
+ }catch(e){showMsg("Não foi possível montar o ranking: "+e.message,"error")}
+}
+/* ---- folha por funcionária ---- */
+function fillSheetSelect(){
+ const sel=$("sheetEmp"),cur=sel.value;
+ sel.innerHTML=employees.map(f=>'<option value="'+f.id+'">'+esc(f.nome)+'</option>').join("");
+ if(cur&&employees.some(f=>f.id===cur))sel.value=cur;
+}
+async function loadSheet(){
+ const f=employees.find(x=>x.id===$("sheetEmp").value);
+ if(!f){$("sheetOut").innerHTML='<p class="sub">Cadastre uma funcionária primeiro.</p>';return}
+ const m=$("sheetMonth").value||dateNow().slice(0,7),[first,last]=monthRange(m);
+ const q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",f.id).gte("data",first).lte("data",last).order("data",{ascending:false});
+ if(q.error){showMsg("Não foi possível carregar a folha: "+q.error.message,"error");return}
+ const a=uniqByDate(q.data||[]),s=rankStats(a);
+ $("sheetOut").innerHTML='<div class="sheet-head">'+avatar(f,60)+'<div><b style="font-size:18px">'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+'</div></div><div class="pills"><span class="status-pill status-green">'+s.g+' dia(s) correto(s)</span><span class="status-pill status-yellow">'+s.y+' com hora extra</span><span class="status-pill status-red">'+(s.r+s.inc)+' com falta de hora</span><span class="status-pill '+(s.saldo<-TOL?"status-red":s.saldo>TOL?"status-yellow":"status-green")+'">Saldo do mês: '+duration(s.saldo)+'</span></div></div><div class="prof-table-wrap">'+sheetHTML(a)+'</div>';
+}
+/* ---- ao vivo ---- */
+async function loadLive(){
+ if(!company)return;
+ if(!employees.length){$("liveGrid").innerHTML='<p class="sub">Nenhuma funcionária cadastrada.</p>';$("liveSummary").innerHTML="";return}
+ const ids=employees.map(f=>f.id),today=dateNow(),nowM=nowMinutes();
+ const rq=await sb.from("se_ponto_registros").select("*").in("funcionario_id",ids).eq("data",today);
+ if(rq.error){showMsg("Não foi possível carregar o ao vivo: "+rq.error.message,"error");return}
+ let js=[];
+ try{const jq=await sb.from("se_ponto_jornadas").select("*").in("funcionario_id",ids).eq("dia_semana",new Date().getDay());if(!jq.error)js=jq.data||[]}catch(e){}
+ const cnt={trab:0,intervalo:0,fim:0,sem:0};
+ const cards=employees.map(f=>{
+  const r=(rq.data||[]).find(x=>x.funcionario_id===f.id),j=js.find(x=>x.funcionario_id===f.id);
+  let cls="status-neutral",card="",label="Aguardando entrada",kind="sem";
+  if(!r||!r.entrada){
+   if(j&&j.trabalha===false){label="Folga hoje";kind="folga"}
+   else if(j&&j.entrada&&nowM>mins(j.entrada)+10){cls="status-red";card="r";label="Sem ponto — atrasada"}
+   cnt.sem++;
+  }else if(r.saida){const st=dayStatus(r);cls=st.cls;label="Dia encerrado · "+st.txt;kind="fim";card=st.key==="verde"?"g":st.key==="amarelo"?"y":"r";cnt.fim++}
+  else if(r.inicio_intervalo&&!r.fim_intervalo){cls="status-blue";card="b";label="Em intervalo";cnt.intervalo++}
+  else{cls="status-green";card="g";label="Trabalhando agora";cnt.trab++}
+  const w=r?worked(r):0,exp=Number(r?.minutos_previstos||j?.minutos_previstos||0),pct=exp?Math.min(100,Math.round(w/exp*100)):0;
+  let foot='<span>Trabalhado: <b>'+duration(w)+'</b></span><span>'+(exp?'Previsto: <b>'+duration(exp)+'</b>':'')+'</span>';
+  if(r&&r.entrada&&!r.saida&&exp)foot+='<span style="width:100%">'+(exp>w?'Faltam <b>'+duration(exp-w)+'</b> para completar a jornada':'Jornada prevista já cumprida — <b>'+duration(w-exp)+'</b> a mais')+'</span>';
+  return'<div class="live-card '+card+'"><div class="live-top">'+avatar(f,52)+'<div><b>'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+'</div></div></div><span class="status-pill '+cls+'">'+label+'</span><div class="punch-mini"><div><small>ENTRADA</small><strong>'+hhmm(r?.entrada)+'</strong></div><div><small>INTERVALO</small><strong>'+hhmm(r?.inicio_intervalo)+'</strong></div><div><small>RETORNO</small><strong>'+hhmm(r?.fim_intervalo)+'</strong></div><div><small>SAÍDA</small><strong>'+hhmm(r?.saida)+'</strong></div></div><div class="bar"><i style="width:'+pct+'%"></i></div><div class="live-foot">'+foot+'</div></div>';
+ });
+ $("liveSummary").innerHTML='<span class="status-pill status-green">'+cnt.trab+' trabalhando</span><span class="status-pill status-blue">'+cnt.intervalo+' em intervalo</span><span class="status-pill status-neutral">'+cnt.fim+' encerraram o dia</span><span class="status-pill status-red">'+cnt.sem+' sem ponto</span>';
+ $("liveGrid").innerHTML=cards.join("");
+ $("liveStamp").textContent=new Date().toLocaleTimeString("pt-BR");
+}
+function startLive(){
+ stopLive();loadLive();
+ liveTimer=setInterval(()=>{if(!document.hidden)loadLive()},15000);
+ if(!liveChannel){try{liveChannel=sb.channel("ponto-live").on("postgres_changes",{event:"*",schema:"public",table:"se_ponto_registros"},()=>{if(activeTab==="live")loadLive()}).subscribe()}catch(e){}}
+}
+function stopLive(){clearInterval(liveTimer);liveTimer=null}
+function selectTab(name){
+ activeTab=name;stopLive();
+ document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
+ document.querySelectorAll(".tabpanel").forEach(p=>p.classList.toggle("hidden",p.id!==name+"Tab"));
+ if(name==="live")startLive();
+ if(name==="rank")loadRank();
+ if(name==="sheet")loadSheet();
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));
+$("liveNow").onclick=loadLive;$("rankMonth").onchange=loadRank;$("sheetEmp").onchange=loadSheet;$("sheetMonth").onchange=loadSheet;
+$("rankMonth").value=$("sheetMonth").value=dateNow().slice(0,7);
+/* ---- lista de funcionárias (com foto) ---- */
+function renderEmployees(){
+ $("employees").innerHTML=employees.length?'<h2>Funcionárias cadastradas</h2>'+employees.map(f=>'<div class="employee emp-row">'+avatar(f,52)+'<div class="emp-info"><b>'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+' · '+(f.auth_user_id?"Acesso criado":"Sem acesso vinculado")+'</div></div><label class="photo-btn">'+(f.foto_url?"Trocar foto":"Adicionar foto")+'<input type="file" accept="image/*" data-photo="'+f.id+'" hidden></label></div>').join(""):'<p class="sub">Nenhuma funcionária cadastrada.</p>';
+ document.querySelectorAll("[data-photo]").forEach(inp=>inp.onchange=async()=>{
+  const file=inp.files[0];if(!file)return;
+  try{await savePhoto(inp.dataset.photo,await fileToAvatar(file));showMsg("Foto salva.","good");await loadEmployees()}
+  catch(e){showMsg("Não foi possível salvar a foto: "+e.message,"error")}
+ });
+}
+async function loadEmployees(){
+ const q=await sb.from("se_ponto_funcionarios").select("*").eq("empresa_id",company.id).order("nome");
+ if(q.error)throw q.error;
+ employees=q.data||[];$("count").textContent=employees.length;
+ if(employees.length){
+  const rr=await sb.from("se_ponto_registros").select("id").in("funcionario_id",employees.map(f=>f.id)).gte("data",dateNow().slice(0,7)+"-01");
+  $("recordsCount").textContent=rr.data?.length||0;
+ }else $("recordsCount").textContent=0;
+ await refreshMedals();renderEmployees();fillSheetSelect();
+ if(!adminStarted){adminStarted=true;selectTab("live")}
+ else if(activeTab==="live")loadLive();
+}
+
+/* ===================== v4: folha completa, ocorrências, histórico, fechamento, PDF/Excel ===================== */
+const OCC={falta_justificada:"Falta justificada",falta_injustificada:"Falta não justificada",atestado:"Atestado",licenca:"Licença",folga:"Folga",feriado:"Feriado",ferias:"Férias",esquecimento:"Esquecimento de marcação"};
+const ABONA=["falta_justificada","atestado","licenca","folga","feriado","ferias"];
+let sheetCtx=null;
+async function buildMonth(f,m){
+ const[first,lastD]=monthRange(m),today=dateNow(),y=+m.slice(0,4),mo=+m.slice(5,7);
+ const Q=t=>sb.from(t).select("*").eq("funcionario_id",f.id);
+ const[rq,oq,hq,cq,jq]=await Promise.all([Q("se_ponto_registros").gte("data",first).lte("data",lastD),Q("se_ponto_ocorrencias").gte("data",first).lte("data",lastD),Q("se_ponto_historico").gte("data",first).lte("data",lastD).order("criado_em",{ascending:false}).limit(40),Q("se_ponto_fechamentos").eq("mes",m).limit(1),Q("se_ponto_jornadas")]);
+ if(rq.error)throw rq.error;
+ const recs=uniqByDate(rq.data||[]),occ=oq.data||[],js=jq.data||[],days=[];
+ const t={prev:0,real:0,atraso:0,extra:0,neg:0,saldo:0,trab:0,inc:0,pend:0,faltas:0};
+ for(let d=1;d<=+lastD.slice(8);d++){
+  const date=m+"-"+String(d).padStart(2,"0");if(date>today)break;
+  const dow=new Date(y,mo-1,d).getDay(),r=recs.find(x=>x.data===date),o=occ.find(x=>x.data===date),j=js.find(x=>x.dia_semana===dow);
+  const works=j?j.trabalha!==false:(dow>0&&dow<6),ab=o&&ABONA.includes(o.tipo);
+  const exp=ab?0:Number(r?.minutos_previstos??(works?j?.minutos_previstos||0:0));
+  const row={date,r,o,j,exp,real:r?worked(r):0,atraso:0,delta:0,cls:"status-neutral",txt:"—"};
+  if(r&&r.entrada){
+   if(j?.entrada){const a=mins(r.entrada)-mins(j.entrada);if(a>TOL){row.atraso=a;t.atraso+=a}}
+   if(r.saida){row.delta=row.real-exp;if(Math.abs(row.delta)>TOL){if(row.delta>0)t.extra+=row.delta;else t.neg-=row.delta}else row.delta=0;t.saldo+=row.delta;t.prev+=exp;t.real+=row.real;t.trab++;
+    const st=o?{cls:ab?"status-neutral":"status-green",txt:OCC[o.tipo]||"Correto"}:dayStatus(r);row.cls=st.cls;row.txt=st.txt}
+   else if(date<today){t.inc++;row.cls="status-red";row.txt="Registro incompleto"}else{row.cls="status-neutral";row.txt="Em andamento"}
+  }else if(o&&o.tipo==="falta_injustificada"){row.delta=-exp;t.neg+=exp;t.saldo-=exp;t.prev+=exp;t.faltas++;row.cls="status-red";row.txt=OCC[o.tipo]}
+  else if(o&&o.tipo){row.cls=o.tipo==="esquecimento"?"status-yellow":"status-neutral";row.txt=OCC[o.tipo];if(o.tipo==="esquecimento")t.inc++}
+  else if(works&&exp>0&&date<today){t.pend++;row.cls="status-red";row.txt="Sem registro — classificar"}
+  else if(!works)row.txt="Folga semanal";
+  days.push(row);
+ }
+ return{f,m,days,t,js,hist:hq.data||[],closed:(cq.data||[])[0]||null,missing:!!(oq.error||hq.error||cq.error)};
+}
+function jornadaTxt(js){const w=js.filter(j=>j.trabalha!==false).sort((a,b)=>a.dia_semana-b.dia_semana);if(!w.length)return"não cadastrada";const j=w[0];return w.map(x=>dayNames[x.dia_semana].slice(0,3)).join(", ")+" · "+hhmm(j.entrada)+"–"+hhmm(j.inicio_intervalo)+" / "+hhmm(j.fim_intervalo)+"–"+hhmm(j.saida)}
+function rowsHTML(c,edit){return c.days.slice().reverse().map(x=>{const r=x.r||{},lab=x.date.split("-").reverse().join("/")+" "+dayNames[new Date(x.date+"T12:00").getDay()].slice(0,3);
+ return'<tr><td class="day-cell">'+lab+'</td><td>'+(x.j&&x.j.trabalha!==false?hhmm(x.j.entrada)+"–"+hhmm(x.j.saida):"—")+'</td><td>'+hhmm(r.entrada)+'</td><td>'+hhmm(r.inicio_intervalo)+'</td><td>'+hhmm(r.fim_intervalo)+'</td><td>'+hhmm(r.saida)+'</td><td>'+(x.exp?duration(x.exp):"—")+'</td><td>'+(x.r?duration(x.real):"—")+'</td><td>'+(x.atraso?x.atraso+" min":"—")+'</td><td>'+(x.delta?(x.delta>0?"+":"")+duration(x.delta):"—")+'</td><td><span class="status-pill '+x.cls+'">'+esc(x.txt)+'</span></td><td>'+esc(x.o?.observacao||"")+'</td>'+(edit?'<td>'+(c.closed?"":'<button class="secondary" type="button" data-edit="'+x.date+'" style="padding:6px 10px">Editar</button>')+'</td>':'')+'</tr>'}).join("")}
+const HEAD='<th>Dia</th><th>Previsto</th><th>Entrada</th><th>Interv.</th><th>Retorno</th><th>Saída</th><th>Carga prev.</th><th>Trabalhado</th><th>Atraso</th><th>Extra/Neg.</th><th>Situação</th><th>Observação</th>';
+function totalsHTML(t){return'<div class="pills" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><span class="status-pill status-neutral">Previsto: '+duration(t.prev)+'</span><span class="status-pill status-neutral">Realizado: '+duration(t.real)+'</span><span class="status-pill status-yellow">Extras: '+duration(t.extra)+'</span><span class="status-pill status-red">Negativas: '+duration(t.neg)+'</span><span class="status-pill '+(t.saldo<0?"status-red":t.saldo>0?"status-yellow":"status-green")+'">Saldo banco de horas: '+(t.saldo>0?"+":"")+duration(t.saldo)+'</span><span class="status-pill status-red">Atrasos: '+t.atraso+' min</span><span class="status-pill status-green">'+t.trab+' dia(s) trabalhado(s)</span><span class="status-pill status-red">'+t.inc+' incompleto(s)</span><span class="status-pill status-red">'+t.faltas+' falta(s) injust.</span><span class="status-pill '+(t.pend?"status-red":"status-green")+'">'+t.pend+' pendente(s)</span></div>'}
+async function loadSheet(){
+ const f=employees.find(x=>x.id===$("sheetEmp").value);
+ if(!f){$("sheetOut").innerHTML='<p class="sub">Cadastre uma funcionária primeiro.</p>';return}
+ const m=$("sheetMonth").value||dateNow().slice(0,7);
+ try{sheetCtx=await buildMonth(f,m)}catch(e){showMsg("Não foi possível carregar a folha: "+e.message,"error");return}
+ const c=sheetCtx;
+ $("sheetOut").innerHTML=(c.missing?'<div class="notice error">Para ocorrências, histórico e fechamento, rode o arquivo SQL-folha.sql no Supabase (veja o LEIA-ME).</div>':'')+'<div class="sheet-head">'+avatar(f,60)+'<div><b style="font-size:18px">'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+' · Jornada: '+esc(jornadaTxt(c.js))+'</div></div></div>'+
+ '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+(c.closed?'<span class="status-pill status-blue">🔒 Mês fechado em '+new Date(c.closed.fechado_em).toLocaleDateString("pt-BR")+'</span><button class="secondary" id="reopenM" type="button">Reabrir mês</button>':'<button id="closeM" type="button">Fechar mês</button>')+'<button class="secondary" id="pdfM" type="button">PDF</button><button class="secondary" id="xlsM" type="button">Excel</button></div>'+totalsHTML(c.t)+
+ '<div class="prof-table-wrap"><table class="prof-timesheet"><thead><tr>'+HEAD+'<th></th></tr></thead><tbody>'+rowsHTML(c,true)+'</tbody></table></div>'+
+ '<h3 style="margin-top:20px">Histórico de alterações</h3>'+(c.hist.length?c.hist.map(h=>'<div class="employee sub"><b>'+h.data.split("-").reverse().join("/")+'</b> · '+esc(h.campo)+': '+esc(h.anterior||"—")+' → <b>'+esc(h.novo||"—")+'</b> · Motivo: '+esc(h.motivo||"—")+' · '+new Date(h.criado_em).toLocaleString("pt-BR")+'</div>').join(""):'<p class="sub">Nenhuma alteração registrada.</p>');
+ document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editDay(b.dataset.edit));
+ if($("closeM"))$("closeM").onclick=async()=>{if(c.t.pend&&!confirm(c.t.pend+" dia(s) sem classificar. Fechar mesmo assim?"))return;if(!confirm("Fechar a folha de "+m+"? Depois disso não será possível editar sem reabrir."))return;const x=await sb.from("se_ponto_fechamentos").insert({funcionario_id:f.id,mes:m,fechado_por:user.id});if(x.error)return showMsg(x.error.message,"error");loadSheet()};
+ if($("reopenM"))$("reopenM").onclick=async()=>{const why=prompt("Motivo para reabrir o mês:");if(!why)return;const x=await sb.from("se_ponto_fechamentos").delete().eq("funcionario_id",f.id).eq("mes",m);if(x.error)return showMsg(x.error.message,"error");await sb.from("se_ponto_historico").insert({funcionario_id:f.id,data:m+"-01",campo:"fechamento",anterior:"fechado",novo:"reaberto",motivo:why,alterado_por:user.id});loadSheet()};
+ $("pdfM").onclick=()=>{const w=window.open("","_blank");if(!w)return showMsg("Libere pop-ups para gerar o PDF.","error");w.document.write(reportHTML(c));w.document.close();setTimeout(()=>w.print(),500)};
+ $("xlsM").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+reportHTML(c)],{type:"application/vnd.ms-excel"}));a.download="folha-"+f.nome.replace(/\s+/g,"-")+"-"+m+".xls";a.click();URL.revokeObjectURL(a.href)};
+}
+function reportHTML(c){const f=c.f,t=c.t;return'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Folha de ponto - '+esc(f.nome)+' - '+c.m+'</title><style>body{font:12px Arial;margin:24px;color:#222}h1{font-size:18px;margin:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left}th{background:#f0f0f0}.sig{display:flex;gap:60px;margin-top:60px}.sig div{flex:1;border-top:1px solid #000;padding-top:4px;text-align:center}.t td{border:0;padding:2px 12px 2px 0}</style></head><body><h1>Barbearia Seu Elizes — Folha de ponto</h1><p><b>Funcionária:</b> '+esc(f.nome)+' &nbsp; <b>Função:</b> '+esc(f.funcao||"Funcionária")+' &nbsp; <b>Mês de referência:</b> '+c.m.split("-").reverse().join("/")+'<br><b>Jornada contratual:</b> '+esc(jornadaTxt(c.js))+(c.closed?'<br><b>Folha fechada em</b> '+new Date(c.closed.fechado_em).toLocaleDateString("pt-BR"):'')+'</p><table><thead><tr>'+HEAD+'</tr></thead><tbody>'+rowsHTML(c,false)+'</tbody></table><table class="t"><tr><td><b>Previsto:</b> '+duration(t.prev)+'</td><td><b>Realizado:</b> '+duration(t.real)+'</td><td><b>Extras:</b> '+duration(t.extra)+'</td><td><b>Negativas:</b> '+duration(t.neg)+'</td><td><b>Saldo do banco de horas:</b> '+duration(t.saldo)+'</td></tr><tr><td><b>Atrasos:</b> '+t.atraso+' min</td><td><b>Dias trabalhados:</b> '+t.trab+'</td><td><b>Registros incompletos:</b> '+t.inc+'</td><td><b>Faltas não justificadas:</b> '+t.faltas+'</td><td></td></tr></table><p style="font-size:10px;color:#666">Saldo positivo é registrado como banco de horas; a forma de compensação ou pagamento depende do contrato e do acordo aplicável.</p><div class="sig"><div>Funcionária</div><div>Responsável</div></div></body></html>'}
+function editDay(date){
+ const c=sheetCtx,x=c.days.find(d=>d.date===date),r=x.r||{},f=c.f;
+ const tf=(id,l,v)=>'<label style="font-size:12px;font-weight:700">'+l+'<input id="'+id+'" type="time" value="'+(v?hhmm(v):"")+'" style="width:100%;padding:8px;margin-top:4px;border:1px solid #d5d9df;border-radius:8px"></label>';
+ const mo=document.createElement("div");mo.style.cssText="position:fixed;inset:0;background:#0007;z-index:200;display:grid;place-items:center;padding:14px";
+ mo.innerHTML='<div class="panel" style="max-width:520px;width:100%;max-height:92vh;overflow:auto"><h2>Editar '+date.split("-").reverse().join("/")+' — '+esc(f.nome)+'</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+tf("eE","Entrada",r.entrada)+tf("eB","Saída p/ intervalo",r.inicio_intervalo)+tf("eC","Retorno",r.fim_intervalo)+tf("eS","Saída final",r.saida)+'</div><div class="field"><label>Ocorrência</label><select id="eO" style="padding:10px;border-radius:9px;border:1px solid #d5d9df"><option value="">Nenhuma</option>'+Object.keys(OCC).map(k=>'<option value="'+k+'"'+(x.o?.tipo===k?" selected":"")+'>'+OCC[k]+'</option>').join("")+'</select></div><div class="field"><label>Observação do administrador</label><input id="eN" value="'+esc(x.o?.observacao||"")+'"></div><div class="field"><label>Motivo da correção (obrigatório se mudar horários)</label><input id="eM"></div><div style="display:flex;gap:8px"><button id="eSave" type="button">Salvar</button><button class="secondary" id="eCancel" type="button">Cancelar</button></div></div>';
+ document.body.appendChild(mo);$("eCancel").onclick=()=>mo.remove();
+ $("eSave").onclick=async()=>{
+  const keys=[["entrada","eE"],["inicio_intervalo","eB"],["fim_intervalo","eC"],["saida","eS"]],motivo=$("eM").value.trim(),vals={},log=[];
+  keys.forEach(([k,id])=>{const nv=$(id).value;vals[k]=nv||null;if(hhmm(r[k]).replace("—","")!==nv)log.push({funcionario_id:f.id,data:date,campo:k,anterior:r[k]?hhmm(r[k]):"",novo:nv,motivo,alterado_por:user.id})});
+  const tipo=$("eO").value,obs=$("eN").value.trim();
+  if(log.length&&!motivo)return showMsg("Informe o motivo da correção.","error");
+  try{
+   if(log.length){const x2=r.id?await sb.from("se_ponto_registros").update({...vals,atualizado_em:new Date().toISOString()}).eq("id",r.id).select("id"):await sb.from("se_ponto_registros").insert({funcionario_id:f.id,data:date,minutos_previstos:x.j?.minutos_previstos||0,tipo_ocorrencia:"manual",criado_por:user.id,...vals}).select("id");
+    if(x2.error)throw x2.error;if(!x2.data||!x2.data.length)throw Error("sem permissão para alterar o ponto (rode o SQL-folha.sql).");
+    const h=await sb.from("se_ponto_historico").insert(log);if(h.error)throw h.error}
+   if((x.o?.tipo||"")!==tipo||(x.o?.observacao||"")!==obs){
+    await sb.from("se_ponto_ocorrencias").delete().eq("funcionario_id",f.id).eq("data",date);
+    if(tipo||obs){const o2=await sb.from("se_ponto_ocorrencias").insert({funcionario_id:f.id,data:date,tipo:tipo||null,observacao:obs,criado_por:user.id});if(o2.error)throw o2.error}
+    await sb.from("se_ponto_historico").insert({funcionario_id:f.id,data:date,campo:"ocorrência",anterior:OCC[x.o?.tipo]||"",novo:OCC[tipo]||obs,motivo:motivo||obs||"—",alterado_por:user.id});
+   }
+   mo.remove();showMsg("Alteração salva.","good");loadSheet();
+  }catch(e){showMsg("Não foi possível salvar: "+e.message,"error")}
+ };
+}
+
+if(sb){
+ sb.auth.getSession().then(({data,error})=>{
+   if(error){showMsg("Não foi possível verificar a sessão: "+error.message,"error");return}
+   if(data.session){user=data.session.user;route()}
+ }).catch(err=>showMsg("Falha ao iniciar a sessão: "+(err.message||err),"error"));
+}else{
+ showMsg("O serviço de acesso não carregou. Confira sua conexão e atualize a página.", "error");
+}
+</script></body></html>

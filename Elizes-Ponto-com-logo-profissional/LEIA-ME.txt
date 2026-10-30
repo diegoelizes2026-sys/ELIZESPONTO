@@ -1,0 +1,61 @@
+SEU ELIZES PONTO — ARQUIVOS PARA VERCEL
+
+Arquivos (todos na RAIZ, sem pasta dentro):
+- index.html
+- logo-seu-elizes.png
+- favicon-elizes.png
+- SQL-fotos.sql  (NÃO vai para a Vercel: é para rodar no Supabase, veja abaixo)
+
+COMO PUBLICAR NA VERCEL:
+1. Extraia o ZIP.
+2. Suba index.html, logo-seu-elizes.png e favicon-elizes.png na raiz do projeto
+   seu-elizes-ponto (Git ou arrastando a pasta). Framework: "Other". Sem build.
+3. Depois do deploy, abra o site e use Ctrl+F5.
+
+PASSO OBRIGATÓRIO NO SUPABASE (1 vez só): rode SQL-fotos.sql, SQL-folha.sql e SQL-seguranca.sql (nessa ordem).
+- SQL-seguranca.sql: PROFISSIONAL NUNCA ACESSA A ADMINISTRAÇÃO. Só pode existir 1 administrador; cadastro profissional
+  não vira administrador (nem o contrário); cada profissional só vê/altera os próprios dados.
+- SQL-fotos.sql: fotos das funcionárias.
+- SQL-folha.sql: ocorrências, histórico de correções, fechamento mensal e permissão para o admin corrigir pontos.
+Como rodar cada um:
+1. Abra o Supabase > SQL Editor > New query.
+2. Copie todo o conteúdo de SQL-fotos.sql, cole e clique em Run.
+(Sem isso o site funciona normal, só não salva a foto e não detecta atraso no "Ao vivo".)
+
+FOLHA DE PONTO COMPLETA (aba "Folha de ponto"):
+- Cada dia: previsto x registrado, 4 batidas, trabalhado, atraso (min), extra/negativa e situação.
+- Totais do mês: previsto, realizado, extras, negativas, saldo do banco de horas, atrasos, dias trabalhados,
+  registros incompletos, faltas e pendências.
+- EDITAR dia: corrige horários (motivo obrigatório, fica no HISTÓRICO com horário anterior e novo) e define a
+  ocorrência: falta justificada/não justificada, atestado, licença, folga, feriado, férias, esquecimento + observação.
+- Dias sem registro NÃO viram falta automaticamente: aparecem como "Sem registro — classificar" e ficam fora do saldo
+  até você classificar. Atestado/licença/férias/feriado/folga/falta justificada zeram o previsto do dia.
+- FECHAR MÊS: trava a edição; "Reabrir" exige motivo e registra no histórico.
+- PDF (abre a impressão: escolha "Salvar como PDF") e EXCEL (.xls), com jornada contratual e campos de assinatura.
+- O saldo positivo é banco de horas; compensação/pagamento depende do contrato e do acordo aplicável.
+- Ainda não incluído: alertas automáticos e feriados automáticos.
+
+NOVIDADES DO PAINEL DO ADMINISTRADOR:
+- ● AO VIVO: quem está trabalhando, em intervalo, encerrou o dia ou está sem ponto/atrasada,
+  com as 4 batidas, horas trabalhadas, quanto falta para completar a jornada e barra de progresso.
+  Atualiza sozinho a cada 15 segundos.
+- 🏆 RANKING: medalhas por mês.
+    Cada dia vale: verde 100 · amarelo (hora extra) 75 · vermelho (faltou hora) 40 · ponto incompleto 0.
+    Pontuação média: 85+ = 🥇 Ouro · 60 a 84 = 🥈 Prata · abaixo de 60 = 🥉 Bronze.
+- FOLHA DE PONTO: escolha a funcionária e o mês para ver todas as batidas, horas e situação de cada dia.
+- FOTO: clique no círculo (iniciais) da funcionária em qualquer tela do administrador para escolher a foto.
+- A PRÓPRIA funcionária também clica na sua foto (na área dela) para enviar/trocar. Exige rodar o SQL-fotos.sql (item 5).
+- FUNCIONÁRIAS: foto no cadastro (opcional) e botão "Adicionar/Trocar foto" em cada uma.
+  A foto aparece ao lado do nome no Ao vivo, Ranking, Folha e na própria área da funcionária.
+- CORES: verde = jornada correta (tolerância de 5 min) · amarelo = hora extra · vermelho = faltou hora.
+
+CORREÇÕES ANTERIORES (mantidas):
+login do administrador, deslogar ao atualizar, cadastro duplicado ("multiple rows"),
+avisos invisíveis, marcar ponto, relatório mensal, exportar CSV, logo mais leve.
+
+IMPORTANTE:
+- Este ZIP não publica sozinho; é preciso fazer o deploy na Vercel.
+- Não compartilhe a senha de administrador.
+- Segurança: depois de criar sua conta de administrador, desative novos cadastros em
+  Supabase > Authentication > Sign In / Providers ("Allow new users to sign up") e confirme
+  que as tabelas se_ponto_* têm RLS ativado.
