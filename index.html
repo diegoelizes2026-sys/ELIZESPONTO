@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seu Elizes Ponto</title>
+<link rel="icon" type="image/png" href="https://seu-elizes-ponto-oe0oaiko8-diegoelizes2026-9148.vercel.app/favicon-elizes.png">
+<link rel="apple-touch-icon" href="https://seu-elizes-ponto-oe0oaiko8-diegoelizes2026-9148.vercel.app/favicon-elizes.png">
+
+<script>
+document.addEventListener("submit",function(ev){
+ const form=ev.target;
+ if(form && form.id==="authForm" && form.dataset.ready!=="yes"){
+   ev.preventDefault(); ev.stopImmediatePropagation();
+   const msg=document.getElementById("message");
+   if(msg){msg.textContent="O login ainda não terminou de carregar. Atualize a página; se continuar, confira a conexão com o serviço de acesso.";msg.className="notice error";msg.classList.remove("hidden");}
+ }
+},true);
+window.addEventListener("error",function(ev){
+ const msg=document.getElementById("message");
+ if(msg && !msg.textContent){
+   msg.textContent="Falha ao iniciar o sistema: "+(ev.message||"erro de JavaScript")+". Atualize a página e tente novamente.";
+   msg.className="notice error";msg.classList.remove("hidden");
+ }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>');}
+</script>
+<style>
+:root{--orange:#f36b12;--ink:#20252b;--muted:#68717c;--bg:#f4f5f7;--line:#e5e7eb}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px Inter,system-ui,Arial;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:12px 15px;background:var(--orange);color:white;font-weight:750}button.secondary{background:#fff;color:#222;border:1px solid var(--line)}button:disabled{opacity:.6;cursor:wait}.wrap{max-width:1120px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:-22px -22px 22px;padding:16px 22px;background:#fff;border-bottom:1px solid #e5e7eb;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:15px}.brand img{width:240px;height:120px;max-height:120px;object-fit:contain;object-position:center;background:transparent;border:0;border-radius:0;display:block;mix-blend-mode:multiply}.brand h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px}.panel,.stat{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 3px 12px #10182808}.panel h2{margin:0 0 8px;font-size:19px}.auth{max-width:500px;margin:25px auto}.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}.field label{font-size:13px;font-weight:700}.field input,.field select{width:100%;padding:12px;border:1px solid #d5d9df;border-radius:9px;background:#fff}.hidden{display:none!important}.notice{padding:12px;border-radius:10px;background:#fff3e8;color:#88400e;margin:12px 0}.good{background:#eaf7ed;color:#216e39}.error{background:#fff0f0;color:#a32121}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.stat strong{display:block;font-size:25px;margin-top:8px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tabs button{background:white;color:#333;border:1px solid var(--line)}.tabs button.active{background:var(--orange);color:white}.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.day{border:1px solid var(--line);padding:10px;border-radius:10px}.day label{display:flex;gap:8px;align-items:center;font-size:13px}.employee{padding:13px 0;border-bottom:1px solid var(--line)}.employee:last-child{border:0}.punch{width:100%;padding:18px;font-size:16px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}@media(max-width:600px){.wrap{padding:13px}.panel{padding:15px}.brand{gap:10px}.brand img{width:118px;height:76px;max-height:76px}.brand h1{font-size:18px}.sub{font-size:12px}.top{align-items:center;margin:-13px -13px 18px;padding:12px 13px}}
+
+/* Login premium Seu Elizes: layout responsivo em laranja, branco e grafite */
+body{background:radial-gradient(ellipse at 50% 35%,#fff 0%,#fff 38%,#f5f5f6 100%);min-height:100vh}
+.wrap{max-width:1600px;padding:0 26px 22px}
+.login-layout{min-height:100vh;display:grid;grid-template-columns:minmax(190px,1fr) minmax(430px,560px) minmax(190px,1fr);gap:34px;align-items:center;position:relative;overflow:hidden}
+.login-layout:before{content:"";position:absolute;z-index:0;left:-180px;top:-180px;width:360px;height:120%;background:linear-gradient(140deg,#f36b12 0 18%,#fff 18% 100%);opacity:.08;transform:skewX(-10deg);pointer-events:none}
+.login-layout:after{content:"";position:absolute;z-index:0;right:-220px;bottom:-280px;width:600px;height:600px;border-radius:50%;background:linear-gradient(135deg,#ffb06e,#f36b12);opacity:.11;pointer-events:none}
+.promo-left,.promo-right,.login-center{position:relative;z-index:1}
+.promo-left{padding:30px 8px 30px 14px;max-width:350px;justify-self:end}
+.eyebrow{font-size:12px;letter-spacing:1.7px;line-height:1.7;color:#6b7280;border-left:3px solid var(--orange);padding-left:13px;margin-bottom:30px}
+.promo-left h2{font-size:clamp(25px,2.1vw,37px);line-height:1.08;letter-spacing:-1px;margin:0 0 18px;font-weight:850}
+.promo-left h2 span{display:block;color:var(--orange)}
+.promo-left p{font-size:16px;line-height:1.65;color:#59616c;max-width:280px;margin:0 0 25px}
+.promo-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;border-top:2px solid var(--orange);padding-top:18px}
+.promo-mini-grid>div{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.promo-mini-grid b{display:grid;place-items:center;width:52px;height:52px;border:1px solid #f7a56d;border-radius:13px;color:var(--orange);font-size:27px;background:#fffaf6}
+.promo-mini-grid span{font-size:10px;line-height:1.4;font-weight:800;color:#454b54;letter-spacing:.3px}
+.login-center{width:100%;max-width:560px;justify-self:center;display:flex;flex-direction:column;align-items:stretch;padding:20px 0}
+.top{background:transparent;border:0;margin:0 0 20px;padding:0;justify-content:center;min-height:0}
+.brand{flex-direction:column;gap:8px;text-align:center;width:100%}
+.brand img{width:min(100%,390px);height:158px;max-height:158px;object-fit:contain;object-position:center;background:transparent;border:0;border-radius:0;mix-blend-mode:multiply}
+.brand h1{font-size:30px;letter-spacing:-.7px;margin:0;color:#20252b}
+.sub{font-size:14px}
+.brand .sub{font-size:15px;margin-top:4px}
+.auth{width:100%;max-width:none;margin:8px 0 0;padding:25px 26px 22px;border-radius:20px;border:1px solid #e9e9eb;box-shadow:0 18px 45px #17202b12;background:rgba(255,255,255,.94)}
+.auth h2{font-size:22px;letter-spacing:-.5px}
+.auth>p.sub{margin:8px 0 15px}
+.field{gap:7px;margin:13px 0}
+.field label{font-size:13px}
+.field input{padding:13px 14px;border-radius:10px;background:#edf3ff;border-color:#dce4f0;min-height:48px}
+#authSubmit{margin-top:3px;min-height:49px;border-radius:11px;background:linear-gradient(100deg,#f36b12,#ff790d);box-shadow:0 6px 14px #f36b1226;font-size:15px}
+#authSubmit span{font-size:20px;margin-left:8px;vertical-align:-1px}
+#toggleText{margin:16px 0 9px}
+#toggle{min-height:44px}
+.login-footer{display:flex;align-items:center;gap:12px;margin-top:22px;color:#9299a3;font-size:10px;letter-spacing:2px;font-weight:750;justify-content:center;text-align:center}
+.login-footer:before,.login-footer:after{content:"";height:1px;background:#d6d9dd;flex:1}
+.login-footer span{font-size:24px;color:var(--orange);letter-spacing:0}
+.promo-right{display:flex;flex-direction:column;gap:25px;max-width:330px;justify-self:start;padding:25px 0}
+.feature{display:flex;align-items:center;gap:14px}
+.feature>b{width:56px;height:56px;flex:0 0 56px;display:grid;place-items:center;border-radius:50%;background:#fff0e5;color:var(--orange);font-size:28px;font-weight:600}
+.feature>div{display:flex;flex-direction:column;gap:5px}
+.feature strong{font-size:14px;color:#20252b}
+.feature span{font-size:12px;line-height:1.5;color:#707782}
+#admin,#staff{max-width:1120px;margin:0 auto}
+@media(max-width:1050px){.login-layout{grid-template-columns:minmax(0,1fr) minmax(400px,540px);gap:25px}.promo-left{display:none}.promo-right{max-width:260px}.login-center{grid-column:1;grid-row:1;justify-self:end}.promo-right{grid-column:2;grid-row:1}}
+@media(max-width:760px){.wrap{padding:0 14px 18px}.login-layout{display:flex;flex-direction:column;justify-content:center;gap:0;min-height:100svh;padding:12px 0}.promo-right{display:none}.login-center{max-width:520px;padding:12px 0}.top{margin-bottom:14px}.brand img{width:min(80vw,300px);height:112px;max-height:112px}.brand h1{font-size:24px}.brand .sub{font-size:12px}.auth{padding:21px 18px;border-radius:16px}.login-footer{font-size:8px;letter-spacing:1.3px;margin-top:17px}.login-footer:before,.login-footer:after{min-width:10px}}
+@media(max-width:380px){.brand img{height:95px}.brand h1{font-size:21px}.auth{padding:18px 15px}.login-footer{letter-spacing:.6px}}
+
+#loginLayout:has(#auth.hidden){display:none}.app-logout{position:fixed;top:16px;right:20px;z-index:50}
+ 
+/* Área profissional: painel pessoal e folha digital */
+#staff{max-width:1120px;margin:26px auto}
+.prof-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.prof-kicker{color:#f36b12;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+.prof-head h2{font-size:clamp(24px,3vw,34px);margin:5px 0}
+.prof-head p{margin:0;color:#737b86}
+.prof-date{border:1px solid #e6e8ec;background:#fff;border-radius:14px;padding:12px 16px;color:#303640;font-weight:700}
+.prof-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}
+.prof-stat{background:#fff;border:1px solid #e7e9ed;border-radius:18px;padding:18px;box-shadow:0 8px 24px #18223008}
+.prof-stat .stat-label{color:#717986;font-size:13px;font-weight:650}
+.prof-stat strong{display:block;font-size:clamp(20px,2.4vw,29px);margin:9px 0 6px;color:#20252b}
+.prof-stat small{color:#818894;font-size:12px}
+.status-pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800}
+.status-pill:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.status-green{background:#e8f8ee;color:#168344}
+.status-yellow{background:#fff5d8;color:#9a6a00}
+.status-red{background:#ffebeb;color:#c22f2f}
+.status-neutral{background:#eef1f5;color:#596270}
+.prof-main-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:16px;align-items:start}
+.prof-card{background:#fff;border:1px solid #e7e9ed;border-radius:18px;padding:22px;box-shadow:0 8px 24px #18223008;min-width:0}
+.prof-card h3{font-size:18px;margin:0 0 5px}
+.prof-card .card-sub{font-size:13px;color:#7a828e;margin:0 0 18px}
+.punch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.punch-grid .punch{border:1px solid #f6b17d;background:#fff8f2;color:#bd5108;border-radius:12px;padding:14px 10px;font-weight:750;min-height:52px}
+.punch-grid .punch:hover{background:#fff0e3}
+.punch-grid .punch:disabled{opacity:.5}
+.prof-timeline{display:grid;gap:10px}
+.prof-time-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #f0f1f3;padding:10px 0}
+.prof-time-row:last-child{border-bottom:0}
+.prof-time-row span{color:#727b87;font-size:13px}
+.prof-time-row strong{font-variant-numeric:tabular-nums;font-size:15px}
+.prof-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 15px}
+.prof-legend span{font-size:11px;font-weight:750;border-radius:999px;padding:6px 9px}
+.prof-table-wrap{overflow:auto}
+.prof-timesheet{border-collapse:separate;border-spacing:0;width:100%;min-width:800px;font-size:12px}
+.prof-timesheet th{background:#f7f8fa;color:#525b67;text-align:left;padding:12px 10px;border-bottom:1px solid #e5e8ec;white-space:nowrap}
+.prof-timesheet td{padding:11px 10px;border-bottom:1px solid #edf0f3;white-space:nowrap}
+.prof-timesheet tr:last-child td{border-bottom:0}
+.prof-timesheet .day-cell{font-weight:800}
+.prof-timesheet .good-cell{color:#168344;font-weight:750}
+.prof-timesheet .warn-cell{color:#9a6a00;font-weight:750}
+.prof-timesheet .bad-cell{color:#c22f2f;font-weight:750}
+.prof-empty{padding:24px;text-align:center;color:#818894}
+@media(max-width:850px){.prof-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.prof-main-grid{grid-template-columns:1fr}}
+@media(max-width:520px){#staff{margin:12px auto}.prof-stat{padding:14px}.prof-card{padding:16px}.punch-grid{grid-template-columns:1fr}.prof-date{width:100%}}
+
+/* Correções: avisos visíveis em qualquer tela + botões de modo */
+#message{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;width:min(92vw,560px);margin:0;box-shadow:0 10px 30px #0003;cursor:pointer;font-weight:650}
+.notice.good{background:#e8f8ee;color:#168344}
+.notice.error{background:#ffebeb;color:#c22f2f}
+.access-choices button{border:1px solid #e5e7eb;background:#fff;color:#222;padding:13px 10px;border-radius:12px;font-weight:700}
+.access-choices button.on{border-color:#f36b12;color:#c9570b;background:#fff7f1}
+
+/* v3: ao vivo, ranking, fotos */
+.status-blue{background:#e8f0ff;color:#2457c5}
+.av{border-radius:50%;object-fit:cover;flex:0 0 auto;display:inline-grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 8px #0002;background:#fff0e5}
+.av-ini{color:#f36b12;font-weight:850}
+[data-avid],[data-selfav]{cursor:pointer;transition:.15s}[data-avid]:hover,[data-selfav]:hover{outline:3px solid #f36b12;outline-offset:1px}
+.emp-row{display:flex;align-items:center;gap:14px}.emp-info{flex:1;min-width:0}
+.photo-btn{display:inline-block;cursor:pointer;border:1px solid #dfe3e8;background:#fff;color:#222;border-radius:10px;padding:9px 12px;font-weight:700;font-size:13px}
+.live-head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.live-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#e53935;margin-right:4px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #e5393577}70%{box-shadow:0 0 0 10px #e5393500}100%{box-shadow:0 0 0 0 #e5393500}}
+.live-summary{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.live-card{border:1px solid #e7e9ed;border-left:6px solid #c5cad2;border-radius:16px;padding:16px;background:#fff;box-shadow:0 6px 18px #18223008}
+.live-card.g{border-left-color:#1fa355}.live-card.y{border-left-color:#e0a200}.live-card.r{border-left-color:#d93636}.live-card.b{border-left-color:#3b6fe0}
+.live-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}.live-top b{font-size:16px}.live-top .sub{font-size:12px}
+.punch-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+.punch-mini div{background:#f7f8fa;border-radius:10px;padding:8px 4px;text-align:center}
+.punch-mini small{display:block;font-size:10px;color:#7a828e;font-weight:700}.punch-mini strong{font-size:14px;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:99px;background:#eceef2;overflow:hidden;margin:8px 0 6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#f36b12,#ff9a4d)}
+.live-foot{font-size:12px;color:#626b77;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.legend-box{background:#fff8f2;border:1px solid #fbd9bf;border-radius:12px;padding:12px 14px;font-size:13px;line-height:2;margin:10px 0 14px}
+.rank-row{display:flex;align-items:center;gap:14px;border:1px solid #e7e9ed;border-radius:16px;padding:14px 16px;margin:10px 0;background:#fff}
+.rank-row.top0{background:linear-gradient(100deg,#fff8dc,#fff);border-color:#f0d36b}.rank-row.top1{background:linear-gradient(100deg,#f3f4f6,#fff);border-color:#cfd3da}.rank-row.top2{background:linear-gradient(100deg,#fdf0e6,#fff);border-color:#e3b58d}
+.rank-pos{font-size:20px;font-weight:850;width:38px;color:#69717d}
+.rank-info{flex:1;min-width:0}.rank-info b{font-size:16px}.rank-info span{display:block;font-size:12px;color:#727b87;margin-top:3px}
+.rank-score{text-align:center;min-width:86px}.rank-score .medal{font-size:34px;line-height:1}.rank-score strong{display:block;font-size:18px}.rank-score small{color:#727b87;font-weight:700}
+.sheet-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 14px}
+.sheet-head .pills{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:560px){.rank-row{flex-wrap:wrap}.rank-score{margin-left:auto}}
+
+/* Logo vetorial em texto: não depende de imagem externa */
+.se-logo{display:flex;align-items:center;justify-content:center;min-height:74px;color:#20252b;margin:0 auto 10px}
+.se-logo-mark{display:none}
+.se-logo-word{display:none}
+.se-logo-word strong{display:none}
+.se-logo-word small{display:none}
+@media(max-width:600px){.se-logo{min-height:58px;gap:9px}.se-logo-mark{width:44px;height:44px;font-size:30px}.se-logo-word strong{font-size:15px}}
+.se-logo-image img{display:block;width:350px;max-width:100%;height:auto;max-height:200px;object-fit:contain;margin:0 auto}.se-logo-image{display:flex;flex:0 1 350px;align-items:center;justify-content:center;width:350px;max-width:100%;min-height:0;margin:0 auto 12px}@media(max-width:600px){.se-logo-image{width:300px;flex-basis:300px}.se-logo-image img{width:300px;max-height:175px}}
+/* Logo Seu Elizes em SVG local: não depende de imagem externa */
+.se-logo-image svg{display:block;width:350px;max-width:100%;height:auto;max-height:168px;margin:0 auto}
+@media(max-width:600px){.se-logo-image{width:300px;flex-basis:300px}.se-logo-image svg{width:300px;max-height:145px}}
+.se-logo-image img{display:block;width:350px;max-width:100%;height:auto;max-height:200px;object-fit:contain;margin:0 auto}@media(max-width:600px){.se-logo-image{width:300px;flex-basis:300px}.se-logo-image img{width:300px;max-height:175px}}.se-logo-image img{display:block;width:350px;max-width:100%;height:auto;max-height:200px;object-fit:contain;margin:0 auto}@media(max-width:600px){.se-logo-image{width:300px;flex-basis:300px}.se-logo-image img{width:300px;max-height:175px}}</style></head>
+<body><div id="message" class="notice hidden" role="alert" title="Clique para fechar"></div><div class="wrap">
+<button id="logout" class="secondary hidden app-logout">Sair</button>
+<div class="login-layout" id="loginLayout">
+<aside class="promo-left">
+<div class="eyebrow">DISCIPLINA<br>ORGANIZAÇÃO<br>RESULTADOS</div>
+<h2>NOSSA EQUIPE FAZ <span>A DIFERENÇA</span></h2>
+<p>Mais organização, mais produtividade e um ambiente ainda mais forte.</p>
+<div class="promo-mini-grid">
+<div><b>♧</b><span>EQUIPE<br>VALORIZADA</span></div>
+<div><b>▥</b><span>GESTÃO<br>EFICIENTE</span></div>
+<div><b>✓</b><span>ROTINA<br>ORGANIZADA</span></div>
+</div>
+</aside>
+<main class="login-center">
+<header class="top"><div class="brand"><div class="se-logo se-logo-image"><img src="data:image/webp;base64,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" alt="Barbershop Seu Elizes Prime"></div><div class="brand-copy"><h1>Seu Elizes Ponto</h1><div class="sub">Controle de jornada • Barbearia Seu Elizes</div></div></div></header>
+<section id="auth" class="panel auth"><div class="access-choices" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 22px">
+<button id="chooseProfessional" type="button" class="secondary">♙ Área profissional</button>
+<button id="chooseAdmin" type="button" class="secondary">⚙ Área administrativa</button>
+</div>
+<h2 id="authTitle">Acessar o sistema</h2><p class="sub">Entre com seu e-mail e senha.</p><form id="authForm"><div class="field"><label>E-mail</label><input id="email" type="email" required autocomplete="username"></div><div class="field"><label>Senha</label><input id="password" type="password" required minlength="8" autocomplete="current-password"></div><button id="authSubmit" style="width:100%">Entrar <span aria-hidden="true">→</span></button></form><button id="professionalAccess" class="secondary hidden" type="button" style="width:100%;margin:0 0 12px;border-color:#f6a36b;color:#c9570b">♙ &nbsp; Área do profissional — Minha folha de ponto</button>
+<p id="toggleText" class="sub">Primeiro acesso do administrador?</p><button id="toggle" class="secondary">♙ &nbsp; Criar conta de administrador</button></section>
+<footer class="login-footer"><span>✂</span><div>BARBEARIA SEU ELIZES • CONTROLE DE JORNADA</div></footer>
+</main>
+<aside class="promo-right">
+<div class="feature"><b>◷</b><div><strong>Controle de jornada</strong><span>Registre entradas, saídas e intervalos.</span></div></div>
+<div class="feature"><b>▥</b><div><strong>Relatórios completos</strong><span>Acompanhe a produtividade da equipe.</span></div></div>
+<div class="feature"><b>♧</b><div><strong>Gestão de equipe</strong><span>Tudo organizado em um só lugar.</span></div></div>
+<div class="feature"><b>◇</b><div><strong>Mais segurança</strong><span>Dados protegidos e acesso individual.</span></div></div>
+</aside>
+</div>
+<section id="admin" class="hidden"><div class="grid"><div class="stat"><span class="sub">Funcionárias cadastradas</span><strong id="count">0</strong></div><div class="stat"><span class="sub">Registros neste mês</span><strong id="recordsCount">0</strong></div><div class="stat"><span class="sub">Perfil</span><strong style="font-size:22px">Administrador</strong></div></div>
+<div class="tabs"><button class="active" data-tab="live">● Ao vivo</button><button data-tab="rank">🏆 Ranking</button><button data-tab="sheet">Folha de ponto</button><button data-tab="staff">Funcionárias</button><button data-tab="report">Relatório mensal</button></div>
+<div id="liveTab" class="panel tabpanel"><div class="live-head"><div><h2><span class="live-dot"></span> Ponto ao vivo — hoje</h2><p class="sub">Veja quem já bateu o ponto, quem está em intervalo e como está o dia de cada funcionária. Atualiza sozinho a cada 15 segundos.</p></div><div class="sub">Atualizado às <b id="liveStamp">—</b> <button class="secondary" id="liveNow" type="button" style="padding:8px 12px;margin-left:6px">Atualizar</button></div></div><div id="liveSummary" class="live-summary"></div><div id="liveGrid" class="live-grid"><p class="sub">Carregando…</p></div></div>
+<div id="rankTab" class="panel tabpanel hidden"><h2>🏆 Ranking de pontualidade</h2><p class="sub">Quem bate o ponto certinho e cumpre a jornada sobe no ranking.</p><div class="legend-box">🥇 <b>Ouro</b>: 85 pontos ou mais &nbsp;·&nbsp; 🥈 <b>Prata</b>: 60 a 84 &nbsp;·&nbsp; 🥉 <b>Bronze</b>: abaixo de 60<br>Cada dia vale: <span class="status-pill status-green">Verde = 100</span> <span class="status-pill status-yellow">Amarelo (hora extra) = 75</span> <span class="status-pill status-red">Vermelho (faltou hora) = 40</span> <span class="status-pill status-neutral">Ponto incompleto = 0</span></div><div class="grid"><div class="field"><label>Mês</label><input id="rankMonth" type="month"></div></div><div id="rankList"></div></div>
+<div id="sheetTab" class="panel tabpanel hidden"><h2>Folha de ponto da funcionária</h2><p class="sub">Todas as batidas de cada dia, horas trabalhadas e situação.</p><div class="grid"><div class="field"><label>Funcionária</label><select id="sheetEmp"></select></div><div class="field"><label>Mês</label><input id="sheetMonth" type="month"></div></div><div id="sheetOut"></div></div>
+<div id="staffTab" class="panel tabpanel hidden"><h2>Cadastrar funcionária</h2><p class="sub">Você cria a conta dela e define os horários. Entregue o e-mail e a senha temporária à funcionária.</p>
+<form id="employeeForm"><div class="grid"><div class="field"><label>Nome completo</label><input id="empName" required></div><div class="field"><label>Função</label><input id="empRole" value="Funcionária" required></div><div class="field"><label>E-mail de acesso</label><input id="empEmail" type="email" required></div><div class="field"><label>Senha temporária (mínimo 8 caracteres)</label><input id="empPassword" type="password" minlength="8" required></div><div class="field"><label>Carga semanal</label><select id="load"><option value="2640">44 horas</option><option value="2400">40 horas</option><option value="2200">36h40</option></select></div><div class="field"><label>Observações</label><input id="notes"></div><div class="field"><label>Foto da funcionária (opcional)</label><input id="empPhoto" type="file" accept="image/*"></div></div>
+<div class="field"><label>Dias de trabalho (desmarque as folgas)</label><div class="days" id="days"></div></div><div class="grid"><div class="field"><label>Entrada</label><input id="entry" type="time" value="08:30" required></div><div class="field"><label>Saída para intervalo</label><input id="break1" type="time" value="12:30" required></div><div class="field"><label>Retorno do intervalo</label><input id="break2" type="time" value="15:12" required></div><div class="field"><label>Saída final</label><input id="exit" type="time" value="20:00" required></div></div><button id="createBtn">Cadastrar funcionária e gerar acesso</button></form><div id="employees" style="margin-top:20px"></div></div>
+<div id="reportTab" class="panel tabpanel hidden"><h2>Relatório mensal</h2><div class="grid"><div class="field"><label>Mês</label><input id="month" type="month"></div><div class="field" style="justify-content:end"><button id="loadReport">Consultar relatório</button></div></div><div id="report" class="tablewrap"></div><button class="secondary" id="csv" style="margin-top:12px">Exportar CSV</button></div></section>
+<section id="staff" class="hidden">
+<div class="prof-head">
+  <div style="display:flex;align-items:center;gap:14px"><span id="myAvatar"></span><div><div class="prof-kicker">Minha área profissional</div><h2 id="hello">Olá!</h2><p>Seu ponto, sua jornada e seu histórico em um só lugar.</p></div></div>
+  <div class="prof-date"><span id="today"></span></div>
+</div>
+<div class="prof-stats">
+  <div class="prof-stat"><div class="stat-label">Horas trabalhadas hoje</div><strong id="workedToday">0h 00min</strong><small>Tempo registrado no dia</small></div>
+  <div class="prof-stat"><div class="stat-label">Situação de hoje</div><strong style="font-size:17px;margin:12px 0"><span id="todayStatus" class="status-pill status-neutral">Aguardando ponto</span></strong><small id="statusDetail">Registre seus horários corretamente</small></div>
+  <div class="prof-stat"><div class="stat-label">Horas extras</div><strong id="overtimeToday">0h 00min</strong><small>Acima da jornada prevista</small></div>
+  <div class="prof-stat"><div class="stat-label">Saldo de hoje</div><strong id="balanceToday">—</strong><small id="balanceDetail">Comparação com sua jornada</small></div>
+</div>
+<div class="prof-main-grid">
+  <div class="prof-card">
+    <h3>Registrar minha jornada</h3><p class="card-sub">Marque cada horário no momento em que acontecer.</p>
+    <div class="punch-grid">
+      <button class="punch" data-punch="entrada">↗ Marcar entrada</button>
+      <button class="punch" data-punch="inicio_intervalo">Ⅱ Iniciar intervalo</button>
+      <button class="punch" data-punch="fim_intervalo">▶ Voltar do intervalo</button>
+      <button class="punch" data-punch="saida">✓ Marcar saída</button>
+    </div>
+    <div style="margin-top:18px;padding:14px;border-radius:12px;background:#f8f9fb;color:#626b77;font-size:13px">Confira os horários antes de sair. Os registros ficam vinculados ao seu acesso individual.</div>
+  </div>
+  <div class="prof-card">
+    <h3>Resumo de hoje</h3><p class="card-sub">Horários registrados e situação da jornada.</p>
+    <div class="prof-timeline" id="todayTimeline">
+      <div class="prof-time-row"><span>Entrada</span><strong>—</strong></div>
+      <div class="prof-time-row"><span>Início do intervalo</span><strong>—</strong></div>
+      <div class="prof-time-row"><span>Retorno do intervalo</span><strong>—</strong></div>
+      <div class="prof-time-row"><span>Saída</span><strong>—</strong></div>
+    </div>
+  </div>
+</div>
+<div class="prof-card" style="margin-top:16px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div><h3>Minha folha de ponto</h3><p class="card-sub">Histórico mensal com comparação da jornada e alertas de horas.</p></div>
+    <label style="font-size:12px;color:#6f7782;font-weight:700">Mês <input id="staffMonth" type="month" style="margin-left:8px;padding:9px;border:1px solid #dfe3e8;border-radius:10px"></label>
+  </div>
+  <div class="prof-legend"><span class="status-green">Verde · Jornada correta</span><span class="status-yellow">Amarelo · Hora extra</span><span class="status-red">Vermelho · Horas faltantes</span></div>
+  <div id="myRecords" class="prof-table-wrap"><div class="prof-empty">Carregando seus registros…</div></div>
+</div>
+</section>
+</div>
+<script>
+const SUPABASE_URL="https://edpbhcnhxhvnqhnajcaa.supabase.co".trim(); const SUPABASE_KEY="sb_publishable_soCSbGnRuDaZ2-39IPhbMQ_2_kpT13k".trim();
+if(!window.supabase || typeof window.supabase.createClient!=="function"){
+ const loadMsg=document.getElementById("message");
+ if(loadMsg){loadMsg.textContent="Não foi possível carregar o serviço de acesso. Verifique sua internet e tente novamente.";loadMsg.className="notice error";loadMsg.classList.remove("hidden");}
+ throw new Error("Biblioteca de acesso Supabase indisponível");
+}
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);let user=null,company=null,employee=null,employees=[],records=[],signup=false,accessMode="auto";
+const first=r=>({data:(r.data&&r.data[0])||null,error:r.error});
+const $=id=>document.getElementById(id), dayNames=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+function message(t,k=""){let e=$("message");e.textContent=t;e.className="notice "+(k==="good"?"good":k==="error"?"error":"");}
+let msgTimer=null;
+function hideMsg(){clearTimeout(msgTimer);$("message").classList.add("hidden")}
+function showMsg(t,k){message(t,k);$("message").classList.remove("hidden");clearTimeout(msgTimer);msgTimer=setTimeout(hideMsg,k==="good"?6000:12000)}
+$("message").onclick=hideMsg;
+function dateNow(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Fortaleza",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{});return p.year+"-"+p.month+"-"+p.day}
+function dayOfWeekNow(){return new Date(dateNow()+"T12:00:00").getDay()}
+function mins(t){if(!t)return null;let p=t.slice(0,5).split(":").map(Number);return p[0]*60+p[1]}
+function duration(n){let s=n<0?"-":"";n=Math.abs(n||0);return s+Math.floor(n/60)+"h "+String(n%60).padStart(2,"0")+"min"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("days").innerHTML=dayNames.map((n,i)=>'<div class="day"><label><input type="checkbox" data-day="'+i+'" '+([1,2,3,4,5].includes(i)?"checked":"")+'> '+n+'</label></div>').join("");
+$("month").value=dateNow().slice(0,7);
+function setMode(m){
+ accessMode=m;signup=false;
+ $("chooseProfessional").classList.toggle("on",m==="professional");
+ $("chooseAdmin").classList.toggle("on",m==="admin");
+ $("authTitle").textContent=m==="professional"?"Área profissional":m==="admin"?"Área administrativa":"Acessar o sistema";
+ $("authSubmit").innerHTML=(m==="professional"?"Entrar na minha folha de ponto":m==="admin"?"Entrar na administração":"Entrar")+' <span aria-hidden="true">→</span>';
+ $("toggleText").textContent=m==="professional"?"Entre com seu e-mail e senha para acessar sua folha de ponto.":m==="admin"?"Acesso do administrador para gerenciar funcionárias e relatórios.":"Primeiro acesso do administrador?";
+ $("toggle").textContent="♙  Criar conta de administrador";
+ $("toggle").classList.toggle("hidden",m==="professional");
+ $("password").autocomplete="current-password";
+ hideMsg();$("email").focus();
+}
+$("chooseProfessional").onclick=()=>setMode("professional");
+$("chooseAdmin").onclick=()=>setMode("admin");
+$("professionalAccess").onclick=()=>setMode("professional");
+$("toggle").onclick=()=>{accessMode="admin";signup=!signup;$("chooseProfessional").classList.remove("on");$("chooseAdmin").classList.add("on");$("authTitle").textContent=signup?"Criar conta do administrador":"Área administrativa";$("authSubmit").innerHTML=(signup?"Criar conta":"Entrar na administração")+' <span aria-hidden="true">→</span>';$("toggle").textContent=signup?"Voltar para entrar":"♙  Criar conta de administrador";$("toggleText").textContent=signup?"Use somente para a conta do responsável.":"Acesso do administrador para gerenciar funcionárias e relatórios.";$("password").autocomplete=signup?"new-password":"current-password";hideMsg()};
+$("authForm").dataset.ready="yes";$("authForm").onsubmit=async e=>{
+ e.preventDefault();hideMsg();
+ const btn=$("authSubmit"),label=signup?"Criar conta":"Entrar";
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){showMsg("Informe seu e-mail e sua senha.","error");return}
+ if(!sb){showMsg("O serviço de acesso não carregou. Atualize a página; se continuar, verifique sua conexão e tente novamente.","error");return}
+ btn.disabled=true;btn.textContent=signup?"Criando conta...":"Verificando acesso...";
+ try{
+   const r=signup?await sb.auth.signUp({email,password,options:{data:{perfil:"admin"}}}):await sb.auth.signInWithPassword({email,password});
+   if(r.error)throw r.error;
+   if(signup&&!r.data.session){showMsg("Conta criada. Confira seu e-mail para confirmar o cadastro, se solicitado.","good");return}
+   if(!r.data.user)throw new Error("O acesso não foi confirmado. Confira os dados e tente novamente.");
+   user=r.data.user;
+   await route();
+ }catch(err){
+   const raw=String(err?.message||"Erro desconhecido");
+   let friendly=raw;
+   if(/invalid login credentials/i.test(raw))friendly="E-mail ou senha incorretos. Confira os dados e tente novamente.";
+   else if(/email not confirmed/i.test(raw))friendly="Seu e-mail ainda não foi confirmado. Confira sua caixa de entrada.";
+   else if(/fetch|network|failed to fetch/i.test(raw))friendly="Não foi possível conectar ao serviço de acesso. Verifique a internet e tente novamente.";
+   showMsg("Não foi possível entrar: "+friendly,"error");
+ }finally{
+   btn.disabled=false;
+   btn.innerHTML=label==="Entrar"?'Entrar <span aria-hidden="true">→</span>':label;
+ }
+};
+$("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
+async function route(){
+  hide("auth");hide("admin");hide("staff");$("logout").classList.remove("hidden");
+  try{
+    const owner=await sb.from("se_ponto_empresas").select("*").eq("owner_user_id",user.id).limit(1).then(first);
+    if(owner.error)throw owner.error;
+    const staff=await sb.from("se_ponto_funcionarios").select("*").eq("auth_user_id",user.id).limit(1).then(first);
+    if(staff.error)throw staff.error;
+    if(staff.data&&accessMode!=="professional"){
+      if(accessMode==="admin"||owner.data)throw new Error("Cadastro profissional não tem acesso à área administrativa. Use a Área profissional.");
+    }
+    if(accessMode==="admin"){
+      if(owner.data){company=owner.data;show("admin");await loadEmployees();return;}
+      if(user.user_metadata?.perfil==="admin"){
+        const created=await sb.from("se_ponto_empresas").insert({owner_user_id:user.id,nome:"Barbearia Seu Elizes"}).select("*").single();
+        if(created.error)throw created.error;
+        company=created.data;show("admin");await loadEmployees();return;
+      }
+      throw new Error("Este usuário não tem perfil de administrador.");
+    }
+    if(accessMode==="professional"){
+      if(staff.data){employee=staff.data;await renderStaff();return;}
+      throw new Error("Este usuário ainda não está vinculado a um cadastro profissional. Peça ao administrador para gerar seu acesso.");
+    }
+    if(staff.data){employee=staff.data;await renderStaff();return;}
+    if(owner.data){company=owner.data;show("admin");await loadEmployees();return;}
+    throw new Error("Seu usuário não tem um perfil autorizado. Peça ao administrador para cadastrar seu acesso.");
+  }catch(e){
+    await sb.auth.signOut();user=null;showMsg("Acesso não autorizado: "+e.message,"error");show("auth");hide("admin");hide("staff");$("logout").classList.add("hidden");
+  }
+}
+function show(id){$(id).classList.remove("hidden")}function hide(id){$(id).classList.add("hidden")}
+$("employeeForm").onsubmit=async e=>{e.preventDefault();let btn=$("createBtn");btn.disabled=true;try{let session=(await sb.auth.getSession()).data.session;if(!session)throw Error("Entre novamente como administrador.");let jornada=[...document.querySelectorAll("[data-day]")].map(ch=>{let work=ch.checked,e= $("entry").value,b=$("break1").value,c=$("break2").value,d=$("exit").value;return{dia_semana:+ch.dataset.day,trabalha:work,entrada:e,inicio_intervalo:b,fim_intervalo:c,saida:d,minutos_previstos:work?Math.max(0,(mins(b)-mins(e))+(mins(d)-mins(c))):0}});let res=await fetch(SUPABASE_URL+"/functions/v1/se-ponto-criar-funcionaria",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({nome:$("empName").value,email:$("empEmail").value,senha:$("empPassword").value,funcao:$("empRole").value,carga_semanal_minutos:+$("load").value,observacoes:$("notes").value,jornada})});let data;try{data=await res.json()}catch(_){throw Error("O serviço de criação de acesso não respondeu corretamente. Verifique se a função se-ponto-criar-funcionaria está publicada no Supabase.");}if(!res.ok||!data.success)throw Error(data.error||("Falha ao gerar acesso (HTTP "+res.status+"). Verifique a função se-ponto-criar-funcionaria no Supabase."));showMsg("Funcionária cadastrada. Entregue o link do site, e-mail e senha inicial.","good");const photoFile=$("empPhoto").files[0],beforeIds=employees.map(f=>f.id);$("employeeForm").reset();$("empRole").value="Funcionária";$("load").value="2640";$("entry").value="08:30";$("break1").value="12:30";$("break2").value="15:12";$("exit").value="20:00";$("days").innerHTML=dayNames.map((n,i)=>'<div class="day"><label><input type="checkbox" data-day="'+i+'" '+([1,2,3,4,5].includes(i)?"checked":"")+'> '+n+'</label></div>').join("");await loadEmployees();if(photoFile){const nf=employees.find(f=>!beforeIds.includes(f.id));if(nf){try{await savePhoto(nf.id,await fileToAvatar(photoFile));await loadEmployees()}catch(pe){showMsg("Funcionária cadastrada, mas a foto não foi salva: "+pe.message,"error")}}}}catch(err){showMsg(err.message,"error")}finally{btn.disabled=false}};
+async function renderStaff(){
+  show("staff");$("myAvatar").innerHTML=avatar(employee,64);$("hello").textContent="Olá, "+employee.nome+"!";$("today").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric",timeZone:"America/Fortaleza"});
+  $("staffMonth").value=dateNow().slice(0,7);
+  $("staffMonth").onchange=loadMyRecords;
+  await loadMyRecords();
+  // Atualiza a área profissional periodicamente para refletir correções feitas pelo administrador.
+  if(window.__sePontoStaffRefresh) window.clearInterval(window.__sePontoStaffRefresh);
+  window.__sePontoStaffRefresh=window.setInterval(async()=>{
+    if(!employee?.id || $("staff").classList.contains("hidden") || window.__sePontoRefreshing) return;
+    window.__sePontoRefreshing=true;
+    try{ await loadMyRecords(); }catch(e){ console.warn("Atualização automática do ponto:",e);}
+    finally{ window.__sePontoRefreshing=false; }
+  },15000);
+}
+async function loadMyRecords(){
+  const month=$("staffMonth")?.value||dateNow().slice(0,7);
+  const first=month+"-01", last=month+"-"+String(new Date(+month.slice(0,4),+month.slice(5,7),0).getDate()).padStart(2,"0");
+  let q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).gte("data",first).lte("data",last).order("data",{ascending:false});
+  if(q.error){showMsg("Não foi possível carregar sua folha de ponto: "+q.error.message,"error");return}
+  let a=q.data||[],today=a.find(r=>r.data===dateNow());
+  if(!today && month===dateNow().slice(0,7)){let t=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).eq("data",dateNow()).limit(1).then(first);if(!t.error)today=t.data}
+  $("workedToday").textContent=duration(today?worked(today):0);
+  const labels=[["entrada","Entrada"],["inicio_intervalo","Início do intervalo"],["fim_intervalo","Retorno do intervalo"],["saida","Saída"]];
+  $("todayTimeline").innerHTML=labels.map(([k,label])=>'<div class="prof-time-row"><span>'+label+'</span><strong>'+(today?.[k]||"—")+'</strong></div>').join("");
+  let schedule=null;
+  try{let j=await sb.from("se_ponto_jornadas").select("*").eq("funcionario_id",employee.id).eq("dia_semana",dayOfWeekNow()).limit(1).then(first);schedule=j.data||null}catch(e){}
+  let expected=Number(schedule?.minutos_previstos||today?.minutos_previstos||0),actual=today?worked(today):0;
+  let status=$("todayStatus"),detail=$("statusDetail"),balance=$("balanceToday"),overtime=$("overtimeToday");
+  status.className="status-pill status-neutral";status.textContent="Aguardando ponto";detail.textContent="Registre seus horários corretamente";balance.textContent="—";$("balanceDetail").textContent="Comparação com sua jornada";overtime.textContent="0h 00min";
+  if(today?.entrada){
+    let delta=actual-expected;
+    if(today.saida && expected>0){
+      if(delta>TOL){status.className="status-pill status-yellow";status.textContent="Hora extra";detail.textContent="Você trabalhou acima da jornada prevista";overtime.textContent=duration(delta);balance.textContent="+"+duration(delta);$("balanceDetail").textContent="Acima da jornada";}
+      else if(delta<-TOL){status.className="status-pill status-red";status.textContent="Horas faltantes";detail.textContent="Jornada abaixo do previsto";balance.textContent=duration(delta);$("balanceDetail").textContent="Abaixo da jornada";}
+      else{status.className="status-pill status-green";status.textContent="Jornada correta";detail.textContent="Carga prevista cumprida";balance.textContent="0h 00min";$("balanceDetail").textContent="Dentro da jornada";}
+    }else{status.className="status-pill status-green";status.textContent="Ponto registrado";detail.textContent=today.saida?"Jornada concluída":"Jornada em andamento";if(expected>0&&actual>expected){overtime.textContent=duration(actual-expected);status.className="status-pill status-yellow";status.textContent="Hora extra";}}
+  }
+  $("myRecords").innerHTML=sheetHTML(a);
+}
+document.querySelectorAll("[data-punch]").forEach(b=>b.onclick=async()=>{b.disabled=true;try{let type=b.dataset.punch,date=dateNow(),q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).eq("data",date).limit(1).then(first);if(q.error)throw q.error;let now=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",hour12:false}),row=q.data;if(row?.[type])throw Error("Esse horário já foi registrado hoje.");if(!row){let j=await sb.from("se_ponto_jornadas").select("minutos_previstos").eq("funcionario_id",employee.id).eq("dia_semana",dayOfWeekNow()).limit(1).then(first);let x=await sb.from("se_ponto_registros").insert({funcionario_id:employee.id,data:date,criado_por:user.id,minutos_previstos:j.data?.minutos_previstos||0,tipo_ocorrencia:"normal",[type]:now});if(x.error)throw x.error}else{let x=await sb.from("se_ponto_registros").update({[type]:now,atualizado_em:new Date().toISOString(),criado_por:user.id}).eq("id",row.id);if(x.error)throw x.error}showMsg("Ponto registrado às "+now,"good");await loadMyRecords()}catch(err){showMsg(err.message,"error")}finally{b.disabled=false}});
+$("loadReport").onclick=async()=>{if(!employees.length){$("report").textContent="Cadastre uma funcionária primeiro.";return}let m=$("month").value;if(!m){showMsg("Escolha o mês do relatório.","error");return}let q=await sb.from("se_ponto_registros").select("*").in("funcionario_id",employees.map(f=>f.id)).gte("data",m+"-01").lte("data",m+"-"+String(new Date(+m.slice(0,4),+m.slice(5,7),0).getDate()).padStart(2,"0")).order("data");if(q.error){showMsg(q.error.message,"error");return}records=q.data||[];let rows=employees.map(f=>{let a=records.filter(r=>r.funcionario_id===f.id),w=a.reduce((s,r)=>s+worked(r),0),p=a.reduce((s,r)=>s+(r.minutos_previstos||0),0);return{name:f.nome,count:a.length,w,p,b:w-p}});$("report").innerHTML='<table><tr><th>Funcionária</th><th>Dias</th><th>Trabalhado</th><th>Previsto</th><th>Saldo</th></tr>'+rows.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+r.count+'</td><td>'+duration(r.w)+'</td><td>'+duration(r.p)+'</td><td style="color:'+(r.b<0?'#c62828':r.b>0?'#9a6700':'#258044')+'">'+duration(r.b)+'</td></tr>').join("")+'</table>'};
+$("csv").onclick=()=>{let rows=[["Funcionária","Data","Entrada","Início intervalo","Fim intervalo","Saída","Trabalhado","Previsto","Saldo"]];(records||[]).forEach(r=>{let f=employees.find(x=>x.id===r.funcionario_id);rows.push([f?.nome||"",r.data,r.entrada||"",r.inicio_intervalo||"",r.fim_intervalo||"",r.saida||"",duration(worked(r)),duration(r.minutos_previstos||0),duration(worked(r)-(r.minutos_previstos||0))])});let blob=new Blob(["\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\r\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="seu-elizes-ponto-"+$("month").value+".csv";a.click();URL.revokeObjectURL(a.href)};
+/* ===================== v3: ao vivo, ranking, folha e fotos ===================== */
+const TOL=5; /* tolerância (minutos) para considerar a jornada "correta" */
+let medals={},adminStarted=false,activeTab="live",liveTimer=null,liveChannel=null;
+const MEDAL={ouro:"🥇",prata:"🥈",bronze:"🥉"},MEDAL_NAME={ouro:"Ouro",prata:"Prata",bronze:"Bronze"};
+function nowMinutes(){const p=new Intl.DateTimeFormat("en-GB",{timeZone:"America/Fortaleza",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{});return Number(p.hour)*60+Number(p.minute)}
+function worked(r){
+ const a=mins(r.entrada);if(a==null)return 0;
+ const b=mins(r.inicio_intervalo),c=mins(r.fim_intervalo),d=mins(r.saida);
+ const now=(r.data===dateNow())?nowMinutes():null;
+ let n=0;const e1=b!=null?b:(d!=null?d:now);
+ if(e1!=null)n+=Math.max(0,e1-a);
+ if(c!=null){const e2=d!=null?d:now;if(e2!=null)n+=Math.max(0,e2-c)}
+ return n;
+}
+function dayStatus(r){
+ const expected=Number(r.minutos_previstos||0),actual=worked(r),today=r.data===dateNow();
+ if(!r.entrada)return{cls:"status-neutral",txt:"Sem ponto",key:"sem",delta:0,complete:false};
+ if(!r.saida){
+  if(today)return{cls:"status-neutral",txt:"Em andamento",key:"andamento",delta:0,complete:false};
+  return{cls:"status-red",txt:"Ponto incompleto",key:"incompleto",delta:0,complete:false};
+ }
+ if(expected>0){
+  const delta=actual-expected;
+  if(Math.abs(delta)<=TOL)return{cls:"status-green",txt:"Correto",key:"verde",delta,complete:true};
+  if(delta>0)return{cls:"status-yellow",txt:"Extra "+duration(delta),key:"amarelo",delta,complete:true};
+  return{cls:"status-red",txt:"Faltam "+duration(-delta),key:"vermelho",delta,complete:true};
+ }
+ return{cls:"status-green",txt:"Concluído",key:"verde",delta:0,complete:true};
+}
+function uniqByDate(a){const seen=new Set();return a.filter(r=>{if(seen.has(r.data))return false;seen.add(r.data);return true})}
+function monthRange(m){return[m+"-01",m+"-"+String(new Date(+m.slice(0,4),+m.slice(5,7),0).getDate()).padStart(2,"0")]}
+function hhmm(t){return t?String(t).slice(0,5):"—"}
+function sheetHTML(a){
+ a=uniqByDate(a||[]);
+ if(!a.length)return'<div class="prof-empty">Nenhum registro encontrado para este mês.</div>';
+ const rows=a.map(r=>{
+  const st=dayStatus(r),actualM=worked(r),dateLabel=(r.data||"").split("-").reverse().join("/");
+  return'<tr><td class="day-cell">'+dateLabel+'</td><td>'+hhmm(r.entrada)+'</td><td>'+hhmm(r.inicio_intervalo)+'</td><td>'+hhmm(r.fim_intervalo)+'</td><td>'+hhmm(r.saida)+'</td><td>'+duration(actualM)+'</td><td>'+(Number(r.minutos_previstos||0)?duration(Number(r.minutos_previstos)):"—")+'</td><td><span class="status-pill '+st.cls+'">'+st.txt+'</span></td></tr>';
+ });
+ return'<table class="prof-timesheet"><thead><tr><th>Dia</th><th>Entrada</th><th>Início intervalo</th><th>Retorno</th><th>Saída</th><th>Total trabalhado</th><th>Previsto</th><th>Situação</th></tr></thead><tbody>'+rows.join("")+'</tbody></table>';
+}
+/* ---- fotos ---- */
+function avatar(f,sz){
+ const st='width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*.38)+'px';
+ const tt=' title="Clique para '+(f&&f.foto_url?'trocar':'adicionar')+' a foto"';
+ const ed=(company&&f&&f.id)?' data-avid="'+f.id+'"'+tt:(!company&&employee&&f&&f.id===employee.id)?' data-selfav="1"'+tt:'';
+ if(f&&f.foto_url)return'<img class="av"'+ed+' style="'+st+'" src="'+esc(f.foto_url)+'" alt="Foto de '+esc(f.nome)+'">';
+ const ini=((f&&f.nome)||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+ return'<span class="av av-ini"'+ed+' style="'+st+'">'+esc(ini)+'</span>';
+}
+function fileToAvatar(file){return new Promise((res,rej)=>{
+ const img=new Image(),fr=new FileReader();
+ fr.onload=()=>{img.onload=()=>{const S=240,c=document.createElement("canvas");c.width=c.height=S;const x=c.getContext("2d"),m=Math.min(img.width,img.height);x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);res(c.toDataURL("image/jpeg",.82))};img.onerror=()=>rej(Error("Imagem inválida."));img.src=fr.result};
+ fr.onerror=()=>rej(Error("Não foi possível ler a imagem."));fr.readAsDataURL(file);
+})}
+async function savePhoto(id,dataUrl){
+ const x=await sb.from("se_ponto_funcionarios").update({foto_url:dataUrl}).eq("id",id).select("id");
+ if(x.error){
+  if(/foto_url|column/i.test(x.error.message))throw Error("falta criar a coluna da foto no Supabase. Rode o arquivo SQL-fotos.sql (veja o LEIA-ME).");
+  throw x.error;
+ }
+ if(!x.data||!x.data.length)throw Error("sem permissão para salvar a foto. Rode o arquivo SQL-fotos.sql no Supabase (veja o LEIA-ME).");
+}
+document.addEventListener("click",ev=>{
+ const el=ev.target.closest&&ev.target.closest("[data-avid]");if(!el)return;
+ const id=el.dataset.avid,inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+ inp.onchange=async()=>{const file=inp.files[0];if(!file)return;
+  try{await savePhoto(id,await fileToAvatar(file));showMsg("Foto salva.","good");await loadEmployees();selectTab(activeTab)}
+  catch(e){showMsg("Não foi possível salvar a foto: "+e.message,"error")}};
+ inp.click();
+});
+document.addEventListener("click",ev=>{
+ if(!(ev.target.closest&&ev.target.closest("[data-selfav]")))return;
+ const inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+ inp.onchange=async()=>{const file=inp.files[0];if(!file)return;
+  try{const d=await fileToAvatar(file),x=await sb.rpc("se_ponto_salvar_minha_foto",{p_foto:d});
+   if(x.error){if(/function|schema cache|does not exist/i.test(x.error.message))throw Error("peça ao administrador para rodar o SQL-fotos.sql no Supabase.");throw x.error}
+   employee.foto_url=d;$("myAvatar").innerHTML=avatar(employee,64);showMsg("Foto atualizada!","good")}
+  catch(e){showMsg("Não foi possível salvar a foto: "+e.message,"error")}};
+ inp.click();
+});
+/* ---- estatísticas / ranking ---- */
+function rankStats(recs){
+ const today=dateNow();let pts=0,n=0,g=0,y=0,r=0,inc=0,saldo=0;
+ uniqByDate(recs).forEach(x=>{
+  if(!x.entrada&&!x.saida)return;
+  if(x.data===today&&!x.saida)return;
+  const st=dayStatus(x);n++;
+  if(st.key==="verde"){pts+=100;g++}else if(st.key==="amarelo"){pts+=75;y++}else if(st.key==="vermelho"){pts+=40;r++}else{inc++}
+  if(st.complete)saldo+=st.delta;
+ });
+ const score=n?Math.round(pts/n):null;
+ return{n,g,y,r,inc,saldo,score,medal:n?(score>=85?"ouro":score>=60?"prata":"bronze"):null};
+}
+async function monthStats(month){
+ if(!employees.length)return[];
+ const[first,last]=monthRange(month);
+ const q=await sb.from("se_ponto_registros").select("*").in("funcionario_id",employees.map(f=>f.id)).gte("data",first).lte("data",last).order("data",{ascending:false});
+ if(q.error)throw q.error;
+ const recs=q.data||[];
+ return employees.map(f=>{const mine=recs.filter(r=>r.funcionario_id===f.id);return{f,recs:mine,st:rankStats(mine)}});
+}
+async function refreshMedals(){
+ try{const all=await monthStats(dateNow().slice(0,7));medals={};all.forEach(x=>{if(x.st.medal)medals[x.f.id]=x.st.medal})}catch(e){}
+}
+function medalTag(id){return medals[id]?' <span title="Medalha '+MEDAL_NAME[medals[id]]+'">'+MEDAL[medals[id]]+'</span>':""}
+async function loadRank(){
+ const m=$("rankMonth").value||dateNow().slice(0,7);
+ try{
+  const all=await monthStats(m);
+  if(m===dateNow().slice(0,7)){medals={};all.forEach(x=>{if(x.st.medal)medals[x.f.id]=x.st.medal})}
+  all.sort((a,b)=>(b.st.score??-1)-(a.st.score??-1)||b.st.n-a.st.n||a.f.nome.localeCompare(b.f.nome));
+  $("rankList").innerHTML=all.length?all.map((x,i)=>{
+   const s=x.st;
+   return'<div class="rank-row top'+(s.medal&&i<3?i:9)+'"><div class="rank-pos">'+(i+1)+'º</div>'+avatar(x.f,54)+'<div class="rank-info"><b>'+esc(x.f.nome)+'</b><span>'+esc(x.f.funcao||"Funcionária")+' · '+(s.n?(s.n+' dia(s): <b style="color:#168344">'+s.g+' verde</b> · <b style="color:#9a6a00">'+s.y+' amarelo</b> · <b style="color:#c22f2f">'+(s.r+s.inc)+' vermelho</b> · saldo '+duration(s.saldo)):"sem registros neste mês")+'</span></div><div class="rank-score">'+(s.medal?'<div class="medal">'+MEDAL[s.medal]+'</div><strong>'+s.score+' pts</strong><small>'+MEDAL_NAME[s.medal]+'</small>':'<small>Sem pontuação</small>')+'</div></div>';
+  }).join(""):'<p class="sub">Cadastre uma funcionária primeiro.</p>';
+ }catch(e){showMsg("Não foi possível montar o ranking: "+e.message,"error")}
+}
+/* ---- folha por funcionária ---- */
+function fillSheetSelect(){
+ const sel=$("sheetEmp"),cur=sel.value;
+ sel.innerHTML=employees.map(f=>'<option value="'+f.id+'">'+esc(f.nome)+'</option>').join("");
+ if(cur&&employees.some(f=>f.id===cur))sel.value=cur;
+}
+async function loadSheet(){
+ const f=employees.find(x=>x.id===$("sheetEmp").value);
+ if(!f){$("sheetOut").innerHTML='<p class="sub">Cadastre uma funcionária primeiro.</p>';return}
+ let today=dateNow(),weekday=dayOfWeekNow();
+ try{const cr=await sb.rpc("se_ponto_relogio_fortaleza");const c=Array.isArray(cr.data)?cr.data[0]:cr.data;const p=String(c?.data_atual||"").split("-");if(!cr.error&&p.length===3&&p[0].length===4&&p[1].length===2&&p[2].length===2&&Number(c.dia_semana)>=0&&Number(c.dia_semana)<=6){today=c.data_atual;weekday=Number(c.dia_semana)}}catch(e){console.warn("Relógio da folha:",e)}
+ const raw=String($("sheetMonth").value||"");const m=raw.length>=7&&raw.charAt(4)==="-"?raw.slice(0,7):today.slice(0,7);const [first,last]=monthRange(m);
+ const q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",f.id).gte("data",first).lte("data",last).order("data",{ascending:false});
+ if(q.error){showMsg("Não foi possível carregar a folha: "+q.error.message,"error");return}
+ let rows=q.data||[];
+ if(m===today.slice(0,7)){
+  let tr=rows.find(r=>String(r.data).slice(0,10)===today)||null;
+  try{const z=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",f.id).eq("data",today).limit(1);if(!z.error&&Array.isArray(z.data)&&z.data.length)tr=z.data[0];else if(z.error)console.warn("Consulta direta do registro de hoje:",z.error.message)}catch(e){console.warn(e)}
+  rows=rows.filter(r=>String(r.data).slice(0,10)!==today);
+  if(!tr){let mins=0;try{const s=await sb.from("se_ponto_jornadas").select("minutos_previstos").eq("funcionario_id",f.id).eq("dia_semana",weekday).limit(1);if(!s.error&&s.data?.length)mins=Number(s.data[0].minutos_previstos||0)}catch(e){}tr={id:"today-preview-"+f.id,funcionario_id:f.id,data:today,entrada:null,inicio_intervalo:null,fim_intervalo:null,saida:null,minutos_previstos:mins,tipo_ocorrencia:"normal"}}
+  rows.push(tr);
+ }
+ const arr=uniqByDate(rows).sort((x,y)=>String(y.data).slice(0,10).localeCompare(String(x.data).slice(0,10))),s=rankStats(arr);
+ $("sheetOut").innerHTML='<div class="sheet-head">'+avatar(f,60)+'<div><b style="font-size:18px">'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+'</div></div><div class="pills"><span class="status-pill status-green">'+s.g+' dia(s) correto(s)</span><span class="status-pill status-yellow">'+s.y+' com hora extra</span><span class="status-pill status-red">'+(s.r+s.inc)+' com falta de hora</span><span class="status-pill '+(s.saldo<-TOL?"status-red":s.saldo>TOL?"status-yellow":"status-green")+'">Saldo do mês: '+duration(s.saldo)+'</span></div></div><div class="prof-table-wrap">'+sheetHTML(arr)+'</div>';
+}
+/* ---- ao vivo ---- */
+async function loadLive(){
+ if(!company)return;
+ if(!employees.length){$("liveGrid").innerHTML='<p class="sub">Nenhuma funcionária cadastrada.</p>';$("liveSummary").innerHTML="";return}
+ const ids=employees.map(f=>f.id);
+ // Usa o relógio do banco Supabase (fuso Fortaleza), não o relógio do computador do administrador.
+ let serverClock;
+ try{
+  const clock=await sb.rpc("se_ponto_relogio_fortaleza");
+  if(clock.error)throw clock.error;
+  serverClock=clock.data;
+  if(!serverClock||typeof serverClock.data_atual!=="string"||serverClock.data_atual.length!==10||serverClock.data_atual.split("-").length!==3||typeof serverClock.hora_atual!=="string"||serverClock.hora_atual.length<5||typeof serverClock.dia_semana==="undefined")throw new Error("Relógio do servidor retornou data inválida.");
+ }catch(e){showMsg("Não foi possível confirmar a data de hoje no servidor: "+e.message,"error");return}
+ const today=serverClock.data_atual,nowM=mins(serverClock.hora_atual),weekday=Number(serverClock.dia_semana);
+ const rq=await sb.from("se_ponto_registros").select("*").in("funcionario_id",ids).eq("data",today);
+ if(rq.error){showMsg("Não foi possível carregar o ao vivo: "+rq.error.message,"error");return}
+ let js=[];
+ try{const jq=await sb.from("se_ponto_jornadas").select("*").in("funcionario_id",ids).eq("dia_semana",weekday);if(!jq.error)js=jq.data||[]}catch(e){}
+ const cnt={trab:0,intervalo:0,fim:0,sem:0};
+ const cards=employees.map(f=>{
+  const r=(rq.data||[]).find(x=>x.funcionario_id===f.id),j=js.find(x=>x.funcionario_id===f.id);
+  let cls="status-neutral",card="",label="Aguardando entrada",kind="sem";
+  if(!r||!r.entrada){
+   if(j&&j.trabalha===false){label="Folga hoje";kind="folga"}
+   else if(j&&j.entrada&&nowM>mins(j.entrada)+10){cls="status-red";card="r";label="Sem ponto — atrasada"}
+   cnt.sem++;
+  }else if(r.saida){const st=dayStatus(r);cls=st.cls;label="Dia encerrado · "+st.txt;kind="fim";card=st.key==="verde"?"g":st.key==="amarelo"?"y":"r";cnt.fim++}
+  else if(r.inicio_intervalo&&!r.fim_intervalo){cls="status-blue";card="b";label="Em intervalo";cnt.intervalo++}
+  else{cls="status-green";card="g";label="Trabalhando agora";cnt.trab++}
+  const w=r?worked(r):0,exp=Number(r?.minutos_previstos||j?.minutos_previstos||0),pct=exp?Math.min(100,Math.round(w/exp*100)):0;
+  let foot='<span>Trabalhado: <b>'+duration(w)+'</b></span><span>'+(exp?'Previsto: <b>'+duration(exp)+'</b>':'')+'</span>';
+  if(r&&r.entrada&&!r.saida&&exp)foot+='<span style="width:100%">'+(exp>w?'Faltam <b>'+duration(exp-w)+'</b> para completar a jornada':'Jornada prevista já cumprida — <b>'+duration(w-exp)+'</b> a mais')+'</span>';
+  return'<div class="live-card '+card+'"><div class="live-top">'+avatar(f,52)+'<div><b>'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+'</div></div></div><span class="status-pill '+cls+'">'+label+'</span><div class="punch-mini"><div><small>ENTRADA</small><strong>'+hhmm(r?.entrada)+'</strong></div><div><small>INTERVALO</small><strong>'+hhmm(r?.inicio_intervalo)+'</strong></div><div><small>RETORNO</small><strong>'+hhmm(r?.fim_intervalo)+'</strong></div><div><small>SAÍDA</small><strong>'+hhmm(r?.saida)+'</strong></div></div><div class="bar"><i style="width:'+pct+'%"></i></div><div class="live-foot">'+foot+'</div></div>';
+ });
+ $("liveSummary").innerHTML='<span class="status-pill status-green">'+cnt.trab+' trabalhando</span><span class="status-pill status-blue">'+cnt.intervalo+' em intervalo</span><span class="status-pill status-neutral">'+cnt.fim+' encerraram o dia</span><span class="status-pill status-red">'+cnt.sem+' sem ponto</span>';
+ $("liveGrid").innerHTML=cards.join("");
+ $("liveStamp").textContent=new Date().toLocaleTimeString("pt-BR",{timeZone:"America/Fortaleza"});
+}
+function startLive(){
+ stopLive();loadLive();
+ liveTimer=setInterval(()=>{if(!document.hidden)loadLive()},15000);
+ if(!liveChannel){try{liveChannel=sb.channel("ponto-live").on("postgres_changes",{event:"*",schema:"public",table:"se_ponto_registros"},()=>{if(activeTab==="live")loadLive()}).subscribe()}catch(e){}}
+}
+function stopLive(){clearInterval(liveTimer);liveTimer=null}
+function selectTab(name){
+ activeTab=name;stopLive();
+ document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
+ document.querySelectorAll(".tabpanel").forEach(p=>p.classList.toggle("hidden",p.id!==name+"Tab"));
+ if(name==="live")startLive();
+ if(name==="rank")loadRank();
+ if(name==="sheet")loadSheet();
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));
+$("liveNow").onclick=loadLive;$("rankMonth").onchange=loadRank;$("sheetEmp").onchange=loadSheet;$("sheetMonth").onchange=loadSheet;
+$("rankMonth").value=$("sheetMonth").value=dateNow().slice(0,7);
+/* ---- lista de funcionárias (com foto) ---- */
+function renderEmployees(){
+ $("employees").innerHTML=employees.length?'<h2>Funcionárias cadastradas</h2><p class="sub">Clique em uma funcionária ou use “Editar cadastro” para alterar carga horária, dias de trabalho, folgas e horários.</p>'+employees.map(f=>'<div class="employee emp-row" data-edit-employee="'+f.id+'" role="button" tabindex="0" title="Clique para editar o cadastro" style="display:flex;align-items:center;gap:12px;cursor:pointer;border-radius:12px;padding:12px 8px"><div style="flex:0 0 auto">'+avatar(f,52)+'</div><div class="emp-info" style="flex:1;min-width:120px"><b>'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+' · '+(f.auth_user_id?"Acesso criado":"Sem acesso vinculado")+'</div><div class="sub">'+esc(String((Number(f.carga_semanal_minutos)||2640)/60))+' horas semanais</div></div><button type="button" class="secondary" data-open-edit="'+f.id+'" style="white-space:nowrap">Editar cadastro</button><label class="photo-btn" style="white-space:nowrap;cursor:pointer" title="Trocar a foto">'+(f.foto_url?"Trocar foto":"Adicionar foto")+'<input type="file" accept="image/*" data-photo="'+f.id+'" hidden></label></div>').join(""):'<p class="sub">Nenhuma funcionária cadastrada.</p>';
+ document.querySelectorAll("[data-edit-employee]").forEach(row=>{
+  row.onclick=ev=>{if(ev.target.closest(".photo-btn")||ev.target.closest("[data-open-edit]"))return;editEmployee(row.dataset.editEmployee)};
+  row.onkeydown=ev=>{if((ev.key==="Enter"||ev.key===" ")&&ev.target===row){ev.preventDefault();editEmployee(row.dataset.editEmployee)}};
+ });
+ document.querySelectorAll("[data-open-edit]").forEach(btn=>btn.onclick=ev=>{ev.preventDefault();ev.stopPropagation();editEmployee(btn.dataset.openEdit)});
+ document.querySelectorAll("[data-photo]").forEach(inp=>inp.onchange=async()=>{
+  const file=inp.files[0];if(!file)return;
+  try{await savePhoto(inp.dataset.photo,await fileToAvatar(file));showMsg("Foto salva.","good");await loadEmployees()}
+  catch(e){showMsg("Não foi possível salvar a foto: "+e.message,"error")}
+ });
+}
+async function editEmployee(id){
+ const f=employees.find(x=>x.id===id);
+ if(!f)return showMsg("Funcionária não encontrada. Atualize a lista e tente novamente.","error");
+ const jr=await sb.from("se_ponto_jornadas").select("*").eq("funcionario_id",f.id);
+ if(jr.error)return showMsg("Não foi possível carregar os horários: "+jr.error.message,"error");
+ const byDay=new Map((jr.data||[]).map(x=>[Number(x.dia_semana),x]));
+ const knownLoads=[2640,2400,2200],loadValue=Number(f.carga_semanal_minutos)||2640;
+ const loadOptions=[["2640","44 horas"],["2400","40 horas"],["2200","36h40"]].map(([v,l])=>'<option value="'+v+'" '+(loadValue===Number(v)?"selected":"")+'>'+l+'</option>').join("")+(!knownLoads.includes(loadValue)?'<option value="'+loadValue+'" selected>Personalizada ('+(loadValue/60)+' horas)</option>':"");
+ const dayCards=dayNames.map((name,i)=>{
+  const j=byDay.get(i),works=j?j.trabalha!==false:[1,2,3,4,5].includes(i);
+  const times=[["entrada","Entrada","08:30"],["inicio_intervalo","Saída para intervalo","12:30"],["fim_intervalo","Retorno do intervalo","15:12"],["saida","Saída final","20:00"]];
+  return '<div data-schedule-card="'+i+'" style="border:1px solid #e3e7ed;border-radius:12px;padding:12px;background:#fff;min-width:0"><label style="display:flex;gap:8px;align-items:center;font-weight:750;margin-bottom:10px"><input type="checkbox" data-workday="'+i+'" '+(works?"checked":"")+' style="width:18px;height:18px;accent-color:#f36b12"> '+name+' <span data-day-label="'+i+'" style="margin-left:auto;font-size:12px;color:'+(works?"#217346":"#a32121")+'">'+(works?"Trabalha":"Folga")+'</span></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+times.map(([key,label,def])=>'<label style="font-size:11px;font-weight:700;display:block">'+label+'<input data-day-time="'+key+'" type="time" value="'+esc(j?.[key]?String(j[key]).slice(0,5):def)+'" style="width:100%;min-width:0;margin-top:4px;padding:8px;border:1px solid #d5d9df;border-radius:8px"></label>').join("")+'</div></div>';
+ }).join("");
+ const modal=document.createElement("div");
+ modal.setAttribute("role","dialog");modal.setAttribute("aria-modal","true");modal.setAttribute("aria-label","Editar funcionária");
+ modal.style.cssText="position:fixed;inset:0;background:#11182788;z-index:500;display:grid;place-items:center;padding:14px";
+ modal.innerHTML='<div style="background:#f7f8fa;border-radius:18px;max-width:1080px;width:100%;max-height:94vh;overflow:auto;box-shadow:0 20px 70px #11182744;padding:20px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px"><div><h2 style="margin:0 0 5px">Editar funcionária</h2><p class="sub" style="margin:0">Altere o cadastro, a carga semanal e a jornada de cada dia. Dias desmarcados ficam como folga.</p></div><button type="button" class="secondary" data-edit-cancel>Fechar ✕</button></div><form data-edit-form><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px"><label style="font-size:12px;font-weight:750">Nome completo<input data-profile="nome" required value="'+esc(f.nome)+'" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid #d5d9df;border-radius:9px"></label><label style="font-size:12px;font-weight:750">Função<input data-profile="funcao" required value="'+esc(f.funcao||"Funcionária")+'" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid #d5d9df;border-radius:9px"></label><label style="font-size:12px;font-weight:750">Carga horária semanal<select data-profile="carga" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid #d5d9df;border-radius:9px;background:#fff">'+loadOptions+'</select></label><label style="font-size:12px;font-weight:750">Observações<input data-profile="observacoes" value="'+esc(f.observacoes||"")+'" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid #d5d9df;border-radius:9px"></label></div><div style="display:flex;align-items:center;gap:12px;margin:18px 0;padding:12px;background:#fff;border:1px solid #e3e7ed;border-radius:12px;flex-wrap:wrap"><div>'+(f.foto_url?'<img data-photo-preview src="'+esc(f.foto_url)+'" alt="Foto atual" style="width:64px;height:64px;border-radius:50%;object-fit:cover">':'<div data-photo-preview style="width:64px;height:64px;border-radius:50%;background:#ffeadf;display:grid;place-items:center;font-weight:800;color:#f36b12">'+esc((f.nome||"F").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase())+'</div>')+'</div><div style="flex:1"><b>Foto da funcionária</b><div class="sub">Selecione uma foto nova. A foto atual será mantida se não escolher arquivo.</div><input data-profile-photo type="file" accept="image/*" style="margin-top:8px;max-width:100%"></div><button type="button" data-remove-photo class="secondary">Remover foto</button></div><h3 style="margin:18px 0 8px">Dias de trabalho e folgas</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:10px">'+dayCards+'</div><div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px"><button type="button" class="secondary" data-edit-cancel>Cancelar</button><button type="submit" data-edit-save>Salvar alterações</button></div></form></div>';
+ document.body.appendChild(modal);
+ const close=()=>modal.remove();
+ modal.querySelectorAll("[data-edit-cancel]").forEach(b=>b.onclick=close);
+ modal.addEventListener("click",ev=>{if(ev.target===modal)close()});
+ modal.querySelectorAll("[data-workday]").forEach(ch=>ch.onchange=()=>{
+  const lab=modal.querySelector('[data-day-label="'+ch.dataset.workday+'"]');
+  lab.textContent=ch.checked?"Trabalha":"Folga";lab.style.color=ch.checked?"#217346":"#a32121";
+ });
+ let newPhoto=null,removePhoto=false;
+ const photoInput=modal.querySelector("[data-profile-photo]");
+ photoInput.onchange=async()=>{
+  const file=photoInput.files?.[0];if(!file)return;
+  try{newPhoto=await fileToAvatar(file);removePhoto=false;const preview=modal.querySelector("[data-photo-preview]");if(preview.tagName==="IMG")preview.src=newPhoto;else{const img=document.createElement("img");img.src=newPhoto;img.alt="Nova foto";img.style.cssText="width:64px;height:64px;border-radius:50%;object-fit:cover";img.setAttribute("data-photo-preview","");preview.replaceWith(img)}}
+  catch(e){showMsg("Não foi possível abrir a foto: "+e.message,"error")}
+ };
+ modal.querySelector("[data-remove-photo]").onclick=()=>{newPhoto=null;removePhoto=true;photoInput.value="";const preview=modal.querySelector("[data-photo-preview]");preview.outerHTML='<div data-photo-preview style="width:64px;height:64px;border-radius:50%;background:#ffeadf;display:grid;place-items:center;font-weight:800;color:#f36b12">Sem foto</div>'};
+ modal.querySelector("[data-edit-form]").onsubmit=async ev=>{
+  ev.preventDefault();const save=modal.querySelector("[data-edit-save]");if(save.disabled)return;
+  const nome=modal.querySelector('[data-profile="nome"]').value.trim(),funcao=modal.querySelector('[data-profile="funcao"]').value.trim(),carga=Number(modal.querySelector('[data-profile="carga"]').value),observacoes=modal.querySelector('[data-profile="observacoes"]').value.trim();
+  if(!nome||!funcao||!carga||carga<=0)return showMsg("Preencha o nome, função e carga horária.","error");
+  const schedules=[];
+  for(const card of modal.querySelectorAll("[data-schedule-card]")){
+   const dow=Number(card.dataset.scheduleCard),works=card.querySelector("[data-workday]").checked;
+   const times={};card.querySelectorAll("[data-day-time]").forEach(inp=>times[inp.dataset.dayTime]=inp.value||null);
+   if(works){
+    if(!times.entrada||!times.inicio_intervalo||!times.fim_intervalo||!times.saida)return showMsg("Preencha os quatro horários de cada dia marcado como trabalho.","error");
+    if(!(mins(times.entrada)<mins(times.inicio_intervalo)&&mins(times.inicio_intervalo)<=mins(times.fim_intervalo)&&mins(times.fim_intervalo)<mins(times.saida)))return showMsg("Confira a sequência dos horários de "+dayNames[dow]+". A ordem deve ser entrada, intervalo, retorno e saída.","error");
+   }
+   const expected=works?Math.max(0,(mins(times.inicio_intervalo)-mins(times.entrada))+(mins(times.saida)-mins(times.fim_intervalo))):0;
+   schedules.push({funcionario_id:f.id,dia_semana:dow,trabalha:works,entrada:works?times.entrada:null,inicio_intervalo:works?times.inicio_intervalo:null,fim_intervalo:works?times.fim_intervalo:null,saida:works?times.saida:null,minutos_previstos:expected});
+  }
+  save.disabled=true;save.textContent="Salvando...";
+  try{
+   const p=await sb.from("se_ponto_funcionarios").update({nome,funcao,carga_semanal_minutos:carga,observacoes:observacoes||null}).eq("id",f.id).eq("empresa_id",company.id).select("id");
+   if(p.error)throw p.error;if(!p.data||!p.data.length)throw Error("Sem permissão para editar este cadastro. Entre novamente como administrador.");
+   const sj=await sb.from("se_ponto_jornadas").upsert(schedules,{onConflict:"funcionario_id,dia_semana"}).select("id");
+   if(sj.error)throw Error("Os dados básicos foram salvos, mas não foi possível salvar os dias/horários: "+sj.error.message);
+   if(newPhoto){await savePhoto(f.id,newPhoto)}
+   else if(removePhoto){const ph=await sb.from("se_ponto_funcionarios").update({foto_url:null}).eq("id",f.id).eq("empresa_id",company.id).select("id");if(ph.error)throw Error("Os horários foram salvos, mas não foi possível remover a foto: "+ph.error.message)}
+   close();await loadEmployees();showMsg("Cadastro, carga horária, dias de trabalho, folgas e horários atualizados.","good");
+  }catch(err){showMsg("Não foi possível concluir a edição: "+err.message,"error");save.disabled=false;save.textContent="Salvar alterações"}
+ };
+}
+async function loadEmployees(){
+ const q=await sb.from("se_ponto_funcionarios").select("*").eq("empresa_id",company.id).order("nome");
+ if(q.error)throw q.error;
+ employees=q.data||[];$("count").textContent=employees.length;
+ if(employees.length){
+  const rr=await sb.from("se_ponto_registros").select("id").in("funcionario_id",employees.map(f=>f.id)).gte("data",dateNow().slice(0,7)+"-01");
+  $("recordsCount").textContent=rr.data?.length||0;
+ }else $("recordsCount").textContent=0;
+ await refreshMedals();renderEmployees();fillSheetSelect();
+ if(!adminStarted){adminStarted=true;selectTab("live")}
+ else if(activeTab==="live")loadLive();
+}
+
+/* ===================== v4: folha completa, ocorrências, histórico, fechamento, PDF/Excel ===================== */
+const OCC={falta_justificada:"Falta justificada",falta_injustificada:"Falta não justificada",atestado:"Atestado",licenca:"Licença",folga:"Folga",feriado:"Feriado",ferias:"Férias",esquecimento:"Esquecimento de marcação"};
+const ABONA=["falta_justificada","atestado","licenca","folga","feriado","ferias"];
+let sheetCtx=null;
+async function buildMonth(f,m){
+ const[first,lastD]=monthRange(m);
+ // A folha usa a mesma data oficial do Supabase que o Ponto ao vivo.
+ let today=dateNow();
+ try{
+  const clockResult=await sb.rpc("se_ponto_relogio_fortaleza");
+  const clock=Array.isArray(clockResult.data)?clockResult.data[0]:clockResult.data;
+  const parts=String(clock?.data_atual||"").split("-");
+  if(!clockResult.error&&parts.length===3&&parts[0].length===4&&parts[1].length===2&&parts[2].length===2&&Number(clock.dia_semana)>=0&&Number(clock.dia_semana)<=6)today=clock.data_atual;
+  else console.warn("Folha: relógio do Supabase inválido; usando o fuso local configurado.");
+ }catch(e){console.warn("Folha: não foi possível consultar relógio do Supabase.",e)}
+ const y=+m.slice(0,4),mo=+m.slice(5,7);
+ const Q=t=>sb.from(t).select("*").eq("funcionario_id",f.id);
+ const[rq,oq,hq,cq,jq]=await Promise.all([Q("se_ponto_registros").gte("data",first).lte("data",lastD),Q("se_ponto_ocorrencias").gte("data",first).lte("data",lastD),Q("se_ponto_historico").gte("data",first).lte("data",lastD).order("criado_em",{ascending:false}).limit(40),Q("se_ponto_fechamentos").eq("mes",m+"-01").limit(1),Q("se_ponto_jornadas")]);
+ if(rq.error)throw rq.error;
+ const recs=uniqByDate(rq.data||[]),occ=oq.data||[],js=jq.data||[],days=[];
+ const t={prev:0,real:0,atraso:0,extra:0,neg:0,saldo:0,trab:0,inc:0,pend:0,faltas:0};
+ for(let d=1;d<=+lastD.slice(8);d++){
+  const date=m+"-"+String(d).padStart(2,"0");if(date>today)break;
+  const dow=new Date(y,mo-1,d).getDay(),r=recs.find(x=>x.data===date),o=occ.find(x=>x.data===date),j=js.find(x=>x.dia_semana===dow);
+  const works=j?j.trabalha!==false:(dow>0&&dow<6),ab=o&&ABONA.includes(o.tipo);
+  const exp=ab?0:Number(r?.minutos_previstos??(works?j?.minutos_previstos||0:0));
+  const row={date,r,o,j,exp,real:r?worked(r):0,atraso:0,delta:0,cls:"status-neutral",txt:"—"};
+  if(r&&r.entrada){
+   if(j?.entrada){const a=mins(r.entrada)-mins(j.entrada);if(a>TOL){row.atraso=a;t.atraso+=a}}
+   if(r.saida){row.delta=row.real-exp;if(Math.abs(row.delta)>TOL){if(row.delta>0)t.extra+=row.delta;else t.neg-=row.delta}else row.delta=0;t.saldo+=row.delta;t.prev+=exp;t.real+=row.real;t.trab++;
+    const st=o?{cls:ab?"status-neutral":"status-green",txt:OCC[o.tipo]||"Correto"}:dayStatus(r);row.cls=st.cls;row.txt=st.txt}
+   else if(date<today){t.inc++;row.cls="status-red";row.txt="Registro incompleto"}else{row.cls="status-neutral";row.txt="Em andamento"}
+  }else if(o&&o.tipo==="falta_injustificada"){row.delta=-exp;t.neg+=exp;t.saldo-=exp;t.prev+=exp;t.faltas++;row.cls="status-red";row.txt=OCC[o.tipo]}
+  else if(o&&o.tipo){row.cls=o.tipo==="esquecimento"?"status-yellow":"status-neutral";row.txt=OCC[o.tipo];if(o.tipo==="esquecimento")t.inc++}
+  else if(works&&exp>0&&date<today){t.pend++;row.cls="status-red";row.txt="Sem registro — classificar"}
+  else if(!works)row.txt="Folga semanal";
+  days.push(row);
+ }
+ return{f,m,days,t,js,hist:hq.data||[],closed:(cq.data||[])[0]||null,missing:!!(oq.error||hq.error||cq.error)};
+}
+function jornadaTxt(js){const w=js.filter(j=>j.trabalha!==false).sort((a,b)=>a.dia_semana-b.dia_semana);if(!w.length)return"não cadastrada";const j=w[0];return w.map(x=>dayNames[x.dia_semana].slice(0,3)).join(", ")+" · "+hhmm(j.entrada)+"–"+hhmm(j.inicio_intervalo)+" / "+hhmm(j.fim_intervalo)+"–"+hhmm(j.saida)}
+function rowsHTML(c,edit){return c.days.slice().reverse().map(x=>{const r=x.r||{},lab=x.date.split("-").reverse().join("/")+" "+dayNames[new Date(x.date+"T12:00").getDay()].slice(0,3);
+ return'<tr><td class="day-cell">'+lab+'</td><td>'+(x.j&&x.j.trabalha!==false?hhmm(x.j.entrada)+"–"+hhmm(x.j.saida):"—")+'</td><td>'+hhmm(r.entrada)+'</td><td>'+hhmm(r.inicio_intervalo)+'</td><td>'+hhmm(r.fim_intervalo)+'</td><td>'+hhmm(r.saida)+'</td><td>'+(x.exp?duration(x.exp):"—")+'</td><td>'+(x.r?duration(x.real):"—")+'</td><td>'+(x.atraso?x.atraso+" min":"—")+'</td><td>'+(x.delta?(x.delta>0?"+":"")+duration(x.delta):"—")+'</td><td><span class="status-pill '+x.cls+'">'+esc(x.txt)+'</span></td><td>'+esc(x.o?.observacao||"")+'</td>'+(edit?'<td>'+(c.closed?"":'<button class="secondary" type="button" data-edit="'+x.date+'" style="padding:6px 10px">Editar</button>')+'</td>':'')+'</tr>'}).join("")}
+const HEAD='<th>Dia</th><th>Previsto</th><th>Entrada</th><th>Interv.</th><th>Retorno</th><th>Saída</th><th>Carga prev.</th><th>Trabalhado</th><th>Atraso</th><th>Extra/Neg.</th><th>Situação</th><th>Observação</th>';
+function totalsHTML(t){return'<div class="pills" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><span class="status-pill status-neutral">Previsto: '+duration(t.prev)+'</span><span class="status-pill status-neutral">Realizado: '+duration(t.real)+'</span><span class="status-pill status-yellow">Extras: '+duration(t.extra)+'</span><span class="status-pill status-red">Negativas: '+duration(t.neg)+'</span><span class="status-pill '+(t.saldo<0?"status-red":t.saldo>0?"status-yellow":"status-green")+'">Saldo banco de horas: '+(t.saldo>0?"+":"")+duration(t.saldo)+'</span><span class="status-pill status-red">Atrasos: '+t.atraso+' min</span><span class="status-pill status-green">'+t.trab+' dia(s) trabalhado(s)</span><span class="status-pill status-red">'+t.inc+' incompleto(s)</span><span class="status-pill status-red">'+t.faltas+' falta(s) injust.</span><span class="status-pill '+(t.pend?"status-red":"status-green")+'">'+t.pend+' pendente(s)</span></div>'}
+async function loadSheet(){
+ const f=employees.find(x=>x.id===$("sheetEmp").value);
+ if(!f){$("sheetOut").innerHTML='<p class="sub">Cadastre uma funcionária primeiro.</p>';return}
+ const m=$("sheetMonth").value||dateNow().slice(0,7);
+ try{sheetCtx=await buildMonth(f,m)}catch(e){showMsg("Não foi possível carregar a folha: "+e.message,"error");return}
+ const c=sheetCtx;
+ $("sheetOut").innerHTML=(c.missing?'<div class="notice error">Para ocorrências, histórico e fechamento, rode o arquivo SQL-folha.sql no Supabase (veja o LEIA-ME).</div>':'')+'<div class="sheet-head">'+avatar(f,60)+'<div><b style="font-size:18px">'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+' · Jornada: '+esc(jornadaTxt(c.js))+'</div></div></div>'+
+ '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+(c.closed?'<span class="status-pill status-blue">🔒 Mês fechado em '+new Date(c.closed.fechado_em).toLocaleDateString("pt-BR")+'</span><button class="secondary" id="reopenM" type="button">Reabrir mês</button>':'<button id="closeM" type="button">Fechar mês</button>')+'<button class="secondary" id="pdfM" type="button">PDF</button><button class="secondary" id="xlsM" type="button">Excel</button></div>'+totalsHTML(c.t)+
+ '<div class="prof-table-wrap"><table class="prof-timesheet"><thead><tr>'+HEAD+'<th></th></tr></thead><tbody>'+rowsHTML(c,true)+'</tbody></table></div>'+
+ '<h3 style="margin-top:20px">Histórico de alterações</h3>'+(c.hist.length?c.hist.map(h=>'<div class="employee sub"><b>'+h.data.split("-").reverse().join("/")+'</b> · '+esc(h.campo)+': '+esc(h.anterior||"—")+' → <b>'+esc(h.novo||"—")+'</b> · Motivo: '+esc(h.motivo||"—")+' · '+new Date(h.criado_em).toLocaleString("pt-BR")+'</div>').join(""):'<p class="sub">Nenhuma alteração registrada.</p>');
+ document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editDay(b.dataset.edit));
+ if($("closeM"))$("closeM").onclick=async()=>{if(c.t.pend&&!confirm(c.t.pend+" dia(s) sem classificar. Fechar mesmo assim?"))return;if(!confirm("Fechar a folha de "+m+"? Depois disso não será possível editar sem reabrir."))return;const x=await sb.from("se_ponto_fechamentos").insert({funcionario_id:f.id,mes:m+"-01",fechado_por:user.id});if(x.error)return showMsg(x.error.message,"error");loadSheet()};
+ if($("reopenM"))$("reopenM").onclick=async()=>{const why=prompt("Motivo para reabrir o mês:");if(!why)return;const x=await sb.from("se_ponto_fechamentos").delete().eq("funcionario_id",f.id).eq("mes",m+"-01");if(x.error)return showMsg(x.error.message,"error");await sb.from("se_ponto_historico").insert({funcionario_id:f.id,data:m+"-01",campo:"fechamento",anterior:"fechado",novo:"reaberto",motivo:why,alterado_por:user.id});loadSheet()};
+ $("pdfM").onclick=()=>{const w=window.open("","_blank");if(!w)return showMsg("Libere pop-ups para gerar o PDF.","error");w.document.write(reportHTML(c));w.document.close();setTimeout(()=>w.print(),500)};
+ $("xlsM").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+reportHTML(c)],{type:"application/vnd.ms-excel"}));a.download="folha-"+f.nome.replace(/\s+/g,"-")+"-"+m+".xls";a.click();URL.revokeObjectURL(a.href)};
+}
+function reportHTML(c){const f=c.f,t=c.t;return'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Folha de ponto - '+esc(f.nome)+' - '+c.m+'</title><style>body{font:12px Arial;margin:24px;color:#222}h1{font-size:18px;margin:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left}th{background:#f0f0f0}.sig{display:flex;gap:60px;margin-top:60px}.sig div{flex:1;border-top:1px solid #000;padding-top:4px;text-align:center}.t td{border:0;padding:2px 12px 2px 0}</style></head><body><h1>Barbearia Seu Elizes — Folha de ponto</h1><p><b>Funcionária:</b> '+esc(f.nome)+' &nbsp; <b>Função:</b> '+esc(f.funcao||"Funcionária")+' &nbsp; <b>Mês de referência:</b> '+c.m.split("-").reverse().join("/")+'<br><b>Jornada contratual:</b> '+esc(jornadaTxt(c.js))+(c.closed?'<br><b>Folha fechada em</b> '+new Date(c.closed.fechado_em).toLocaleDateString("pt-BR"):'')+'</p><table><thead><tr>'+HEAD+'</tr></thead><tbody>'+rowsHTML(c,false)+'</tbody></table><table class="t"><tr><td><b>Previsto:</b> '+duration(t.prev)+'</td><td><b>Realizado:</b> '+duration(t.real)+'</td><td><b>Extras:</b> '+duration(t.extra)+'</td><td><b>Negativas:</b> '+duration(t.neg)+'</td><td><b>Saldo do banco de horas:</b> '+duration(t.saldo)+'</td></tr><tr><td><b>Atrasos:</b> '+t.atraso+' min</td><td><b>Dias trabalhados:</b> '+t.trab+'</td><td><b>Registros incompletos:</b> '+t.inc+'</td><td><b>Faltas não justificadas:</b> '+t.faltas+'</td><td></td></tr></table><p style="font-size:10px;color:#666">Saldo positivo é registrado como banco de horas; a forma de compensação ou pagamento depende do contrato e do acordo aplicável.</p><div class="sig"><div>Funcionária</div><div>Responsável</div></div></body></html>'}
+function editDay(date){
+ const c=sheetCtx,x=c.days.find(d=>d.date===date),r=x.r||{},f=c.f;
+ const tf=(id,l,v)=>'<label style="font-size:12px;font-weight:700">'+l+'<input id="'+id+'" type="time" value="'+(v?hhmm(v):"")+'" style="width:100%;padding:8px;margin-top:4px;border:1px solid #d5d9df;border-radius:8px"></label>';
+ const mo=document.createElement("div");mo.style.cssText="position:fixed;inset:0;background:#0007;z-index:200;display:grid;place-items:center;padding:14px";
+ mo.innerHTML='<div class="panel" style="max-width:520px;width:100%;max-height:92vh;overflow:auto"><h2>Editar '+date.split("-").reverse().join("/")+' — '+esc(f.nome)+'</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+tf("eE","Entrada",r.entrada)+tf("eB","Saída p/ intervalo",r.inicio_intervalo)+tf("eC","Retorno",r.fim_intervalo)+tf("eS","Saída final",r.saida)+'</div><div class="field"><label>Ocorrência (opcional — os horários podem ser salvos sem ocorrência)</label><select id="eO" style="padding:10px;border-radius:9px;border:1px solid #d5d9df"><option value="">Nenhuma</option>'+Object.keys(OCC).map(k=>'<option value="'+k+'"'+(x.o?.tipo===k?" selected":"")+'>'+OCC[k]+'</option>').join("")+'</select></div><div class="field"><label>Observação do administrador</label><input id="eN" value="'+esc(x.o?.observacao||"")+'"></div><div class="field"><label>Motivo da correção (obrigatório se mudar horários)</label><input id="eM"></div><div style="display:flex;gap:8px"><button id="eSave" type="button">Salvar</button><button class="secondary" id="eCancel" type="button">Cancelar</button></div></div>';
+ document.body.appendChild(mo);$("eCancel").onclick=()=>mo.remove();
+ $("eSave").onclick=async()=>{
+  const keys=[["entrada","eE"],["inicio_intervalo","eB"],["fim_intervalo","eC"],["saida","eS"]],motivo=$("eM").value.trim(),vals={},log=[];
+  keys.forEach(([k,id])=>{const nv=$(id).value;vals[k]=nv||null;if(hhmm(r[k]).replace("—","")!==nv)log.push({funcionario_id:f.id,data:date,campo:k,anterior:r[k]?hhmm(r[k]):"",novo:nv,motivo,alterado_por:user.id})});
+  const tipo=$("eO").value,obs=$("eN").value.trim();
+  if(log.length&&!motivo)return showMsg("Informe o motivo da correção.","error");
+  try{
+   if(log.length){const x2=r.id?await sb.from("se_ponto_registros").update({...vals,atualizado_em:new Date().toISOString()}).eq("id",r.id).select("id"):await sb.from("se_ponto_registros").insert({funcionario_id:f.id,data:date,minutos_previstos:x.j?.minutos_previstos||0,tipo_ocorrencia:"normal",criado_por:user.id,...vals}).select("id");
+    if(x2.error)throw x2.error;if(!x2.data||!x2.data.length)throw Error("sem permissão para alterar o ponto (rode o SQL-folha.sql).");
+    const h=await sb.from("se_ponto_historico").insert(log);if(h.error)throw h.error}
+   if((x.o?.tipo||"")!==tipo||(x.o?.observacao||"")!==obs){
+    await sb.from("se_ponto_ocorrencias").delete().eq("funcionario_id",f.id).eq("data",date);
+    if(tipo||obs){const o2=await sb.from("se_ponto_ocorrencias").insert({funcionario_id:f.id,data:date,tipo:tipo||null,observacao:obs,criado_por:user.id});if(o2.error)throw o2.error}
+    await sb.from("se_ponto_historico").insert({funcionario_id:f.id,data:date,campo:"ocorrência",anterior:OCC[x.o?.tipo]||"",novo:OCC[tipo]||obs,motivo:motivo||obs||"—",alterado_por:user.id});
+   }
+   mo.remove();showMsg("Alteração salva.","good");loadSheet();
+  }catch(e){showMsg("Não foi possível salvar: "+e.message,"error")}
+ };
+}
+
+if(sb){
+ sb.auth.getSession().then(({data,error})=>{
+   if(error){showMsg("Não foi possível verificar a sessão: "+error.message,"error");return}
+   if(data.session){user=data.session.user;route()}
+ }).catch(err=>showMsg("Falha ao iniciar a sessão: "+(err.message||err),"error"));
+}else{
+ showMsg("O serviço de acesso não carregou. Confira sua conexão e atualize a página.", "error");
+}
+</script></body></html>
