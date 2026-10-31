@@ -142,6 +142,7 @@ body{background:#f8f8f7;min-height:100vh;color:#111923}
 .access-choices button{border:1px solid #e5e7eb;background:#fff;color:#222;padding:13px 10px;border-radius:12px;font-weight:700}
 .access-choices button.on{border-color:#f36b12;color:#c9570b;background:#fff7f1}
 
+.punch-photo-link{display:inline-flex;align-items:center;margin-left:5px;padding:3px 6px;border-radius:7px;background:#fff2e8;color:#c9570b;font-size:10px;font-weight:800;text-decoration:none;border:1px solid #ffd8bf}.punch-photo-link:hover{background:#ffe5d4}
 /* v3: ao vivo, ranking, fotos */
 .status-blue{background:#e8f0ff;color:#2457c5}
 .av{border-radius:50%;object-fit:cover;flex:0 0 auto;display:inline-grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 8px #0002;background:#fff0e5}
@@ -939,6 +940,23 @@ async function buildMonth(f,m){
  const[rq,oq,hq,cq,jq]=await Promise.all([Q("se_ponto_registros").gte("data",first).lte("data",lastD),Q("se_ponto_ocorrencias").gte("data",first).lte("data",lastD),Q("se_ponto_historico").gte("data",first).lte("data",lastD).order("criado_em",{ascending:false}).limit(40),Q("se_ponto_fechamentos").eq("mes",m+"-01").limit(1),Q("se_ponto_jornadas")]);
  if(rq.error)throw rq.error;
  const recs=uniqByDate(rq.data||[]),occ=oq.data||[],js=jq.data||[],days=[];
+ const photoFields={entrada:"foto_entrada_path",inicio_intervalo:"foto_inicio_intervalo_path",fim_intervalo:"foto_fim_intervalo_path",saida:"foto_saida_path"};
+ const photoPaths=[...new Set(recs.flatMap(r=>[...Object.values(photoFields).map(k=>r[k]),r.foto_comprovante_path].filter(Boolean)))];
+ let photoMap=new Map();
+ if(photoPaths.length){
+  const signed=await sb.storage.from("se-ponto-comprovantes").createSignedUrls(photoPaths,3600);
+  if(signed.error)console.warn("Fotos da folha:",signed.error.message);
+  else photoMap=new Map((signed.data||[]).map(x=>[x.path,x.signedUrl]));
+ }
+ recs.forEach(r=>{
+  const punches=["entrada","inicio_intervalo","fim_intervalo","saida"].filter(k=>r[k]);
+  const lastPunch=punches[punches.length-1];
+  r.photoUrls={};
+  Object.entries(photoFields).forEach(([k,col])=>{
+   const path=r[col]||(lastPunch===k?r.foto_comprovante_path:null);
+   if(path&&photoMap.has(path))r.photoUrls[k]=photoMap.get(path);
+  });
+ });
  const t={prev:0,real:0,atraso:0,extra:0,neg:0,saldo:0,trab:0,inc:0,pend:0,faltas:0};
  for(let d=1;d<=+lastD.slice(8);d++){
   const date=m+"-"+String(d).padStart(2,"0");if(date>today)break;
@@ -960,8 +978,9 @@ async function buildMonth(f,m){
  return{f,m,days,t,js,hist:hq.data||[],closed:(cq.data||[])[0]||null,missing:!!(oq.error||hq.error||cq.error)};
 }
 function jornadaTxt(js){const w=js.filter(j=>j.trabalha!==false).sort((a,b)=>a.dia_semana-b.dia_semana);if(!w.length)return"não cadastrada";const j=w[0];return w.map(x=>dayNames[x.dia_semana].slice(0,3)).join(", ")+" · "+hhmm(j.entrada)+"–"+hhmm(j.inicio_intervalo)+" / "+hhmm(j.fim_intervalo)+"–"+hhmm(j.saida)}
+function punchPhoto(r,k){const u=r?.photoUrls?.[k];return u?' <a class="punch-photo-link" href="'+esc(u)+'" target="_blank" rel="noopener" title="Ver foto da batida">📷 Foto</a>':""}
 function rowsHTML(c,edit){return c.days.slice().reverse().map(x=>{const r=x.r||{},lab=x.date.split("-").reverse().join("/")+" "+dayNames[new Date(x.date+"T12:00").getDay()].slice(0,3);
- return'<tr><td class="day-cell">'+lab+'</td><td>'+(x.j&&x.j.trabalha!==false?hhmm(x.j.entrada)+"–"+hhmm(x.j.saida):"—")+'</td><td>'+hhmm(r.entrada)+'</td><td>'+hhmm(r.inicio_intervalo)+'</td><td>'+hhmm(r.fim_intervalo)+'</td><td>'+hhmm(r.saida)+'</td><td>'+(x.exp?duration(x.exp):"—")+'</td><td>'+(x.r?duration(x.real):"—")+'</td><td>'+(x.atraso?x.atraso+" min":"—")+'</td><td>'+(x.delta?(x.delta>0?"+":"")+duration(x.delta):"—")+'</td><td><span class="status-pill '+x.cls+'">'+esc(x.txt)+'</span></td><td>'+esc(x.o?.observacao||"")+'</td>'+(edit?'<td>'+(c.closed?"":'<button class="secondary" type="button" data-edit="'+x.date+'" style="padding:6px 10px">Editar</button>')+'</td>':'')+'</tr>'}).join("")}
+ return'<tr><td class="day-cell">'+lab+'</td><td>'+(x.j&&x.j.trabalha!==false?hhmm(x.j.entrada)+"–"+hhmm(x.j.saida):"—")+'</td><td>'+hhmm(r.entrada)+punchPhoto(r,"entrada")+'</td><td>'+hhmm(r.inicio_intervalo)+punchPhoto(r,"inicio_intervalo")+'</td><td>'+hhmm(r.fim_intervalo)+punchPhoto(r,"fim_intervalo")+'</td><td>'+hhmm(r.saida)+punchPhoto(r,"saida")+'</td><td>'+(x.exp?duration(x.exp):"—")+'</td><td>'+(x.r?duration(x.real):"—")+'</td><td>'+(x.atraso?x.atraso+" min":"—")+'</td><td>'+(x.delta?(x.delta>0?"+":"")+duration(x.delta):"—")+'</td><td><span class="status-pill '+x.cls+'">'+esc(x.txt)+'</span></td><td>'+esc(x.o?.observacao||"")+'</td>'+(edit?'<td>'+(c.closed?"":'<button class="secondary" type="button" data-edit="'+x.date+'" style="padding:6px 10px">Editar</button>')+'</td>':'')+'</tr>'}).join("")}
 const HEAD='<th>Dia</th><th>Previsto</th><th>Entrada</th><th>Interv.</th><th>Retorno</th><th>Saída</th><th>Carga prev.</th><th>Trabalhado</th><th>Atraso</th><th>Extra/Neg.</th><th>Situação</th><th>Observação</th>';
 function totalsHTML(t){return'<div class="pills" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><span class="status-pill status-neutral">Previsto: '+duration(t.prev)+'</span><span class="status-pill status-neutral">Realizado: '+duration(t.real)+'</span><span class="status-pill status-yellow">Extras: '+duration(t.extra)+'</span><span class="status-pill status-red">Negativas: '+duration(t.neg)+'</span><span class="status-pill '+(t.saldo<0?"status-red":t.saldo>0?"status-yellow":"status-green")+'">Saldo banco de horas: '+(t.saldo>0?"+":"")+duration(t.saldo)+'</span><span class="status-pill status-red">Atrasos: '+t.atraso+' min</span><span class="status-pill status-green">'+t.trab+' dia(s) trabalhado(s)</span><span class="status-pill status-red">'+t.inc+' incompleto(s)</span><span class="status-pill status-red">'+t.faltas+' falta(s) injust.</span><span class="status-pill '+(t.pend?"status-red":"status-green")+'">'+t.pend+' pendente(s)</span></div>'}
 async function loadSheet(){
