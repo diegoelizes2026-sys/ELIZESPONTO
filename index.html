@@ -191,8 +191,8 @@ body{background:#f8f8f7;min-height:100vh;color:#111923}
  --ep-shadow:0 8px 28px rgba(16,24,40,.06);
  --ep-space-1:.5rem;--ep-space-2:.75rem;--ep-space-3:1rem;--ep-space-4:1.5rem;--ep-space-5:2rem;
 }
-html{width:100%;min-width:320px;overflow-x:clip;scroll-padding-top:16px}
-body{width:100%;min-width:320px;max-width:100%;overflow-x:clip;padding-bottom:env(safe-area-inset-bottom);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ep-ink);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{width:100%;min-width:320px;overflow-x:hidden;overflow-x:clip;scroll-padding-top:16px}
+body{width:100%;min-width:320px;max-width:100%;overflow-x:hidden;overflow-x:clip;padding-bottom:env(safe-area-inset-bottom);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ep-ink);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 *,*::before,*::after{box-sizing:border-box}
 img,svg,video,canvas{max-width:100%}
 button,a,input,select,textarea{touch-action:manipulation}
@@ -332,11 +332,11 @@ table{max-width:100%}
 <main class="login-center">
 <header class="top"><div class="brand"><div class="se-logo se-logo-image"><img src="/logo-elizes-ponto.svg" alt="ELIZES PONTO"></div><div class="brand-copy"><div class="sub">CONTROLE DE JORNADA DA SUA EQUIPE</div></div></div></header>
 <section id="auth" class="panel auth"><div class="access-choices" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 22px">
-<button id="chooseProfessional" type="button" class="secondary">♙ Área profissional</button>
-<button id="chooseAdmin" type="button" class="secondary">⚙ Área administrativa</button>
+<button id="chooseProfessional" type="button" class="secondary"><svg class="feature-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2"/><path d="M19 8v6M16 11h6"/></svg> Área profissional</button>
+<button id="chooseAdmin" type="button" class="secondary"><svg class="feature-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.4.8l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.8l-1.6.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.7l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.4-.8l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.8l1.6-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.7Z"/></svg> Área administrativa</button>
 </div>
-<h2 id="authTitle">Acessar o sistema</h2><p class="sub">Entre com seu e-mail e senha.</p><form id="authForm"><div class="field"><label>E-mail</label><input id="email" type="email" required autocomplete="username"></div><div class="field"><label>Senha</label><div class="password-wrap"><input id="password" type="password" required minlength="8" autocomplete="current-password"><button id="togglePassword" type="button" class="password-eye" aria-label="Mostrar senha">◉</button></div></div><div class="login-options"><label><input id="rememberMe" type="checkbox" checked> <span>Lembrar de mim</span></label><button id="forgotPassword" type="button">Esqueceu a senha?</button></div><button id="authSubmit" style="width:100%">Entrar <span aria-hidden="true">→</span></button></form><button id="professionalAccess" class="secondary hidden" type="button" style="width:100%;margin:0 0 12px;border-color:#f6a36b;color:#c9570b">♙ &nbsp; Área do profissional — Minha folha de ponto</button>
-<div class="or-divider"><span>ou</span></div><p id="toggleText" class="sub">Primeiro acesso do administrador?</p><button id="toggle" class="secondary">♙ &nbsp; Criar conta de administrador</button><div class="login-security">♢ &nbsp; Sistema seguro e confiável para a sua empresa.</div></section>
+<h2 id="authTitle">Acessar o sistema</h2><p class="sub">Entre com seu e-mail e senha.</p><form id="authForm"><div class="field"><label>E-mail</label><input id="email" type="email" required autocomplete="username"></div><div class="field"><label>Senha</label><div class="password-wrap"><input id="password" type="password" required minlength="8" autocomplete="current-password"><button id="togglePassword" type="button" class="password-eye" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div><div class="login-options"><label><input id="rememberMe" type="checkbox" checked> <span>Lembrar de mim</span></label><button id="forgotPassword" type="button">Esqueceu a senha?</button></div><button id="authSubmit" style="width:100%">Entrar <span aria-hidden="true">→</span></button></form><button id="professionalAccess" class="secondary hidden" type="button" style="width:100%;margin:0 0 12px;border-color:#f6a36b;color:#c9570b">Área do profissional — Minha folha de ponto</button>
+<div class="or-divider"><span>ou</span></div><p id="toggleText" class="sub">Primeiro acesso do administrador?</p><button id="toggle" class="secondary">Criar conta de administrador</button><div class="login-security">♢ &nbsp; Sistema seguro e confiável para a sua empresa.</div></section>
 
 </main>
 <aside class="promo-right">
@@ -426,7 +426,7 @@ function setMode(m){
  $("authTitle").textContent=m==="professional"?"Área profissional":m==="admin"?"Área administrativa":"Acessar o sistema";
  $("authSubmit").innerHTML=(m==="professional"?"Entrar na minha folha de ponto":m==="admin"?"Entrar na administração":"Entrar")+' <span aria-hidden="true">→</span>';
  $("toggleText").textContent=m==="professional"?"Entre com seu e-mail e senha para acessar sua folha de ponto.":m==="admin"?"Acesso do administrador para gerenciar funcionárias e relatórios.":"Primeiro acesso do administrador?";
- $("toggle").textContent="♙  Criar conta de administrador";
+ $("toggle").textContent="Criar conta de administrador";
  $("toggle").classList.toggle("hidden",m==="professional");
  $("password").autocomplete="current-password";
  hideMsg();$("email").focus();
@@ -436,7 +436,7 @@ $("forgotPassword").onclick=async()=>{const email=$("email").value.trim();if(!em
 $("chooseProfessional").onclick=()=>setMode("professional");
 $("chooseAdmin").onclick=()=>setMode("admin");
 $("professionalAccess").onclick=()=>setMode("professional");
-$("toggle").onclick=()=>{accessMode="admin";signup=!signup;$("chooseProfessional").classList.remove("on");$("chooseAdmin").classList.add("on");$("authTitle").textContent=signup?"Criar conta do administrador":"Área administrativa";$("authSubmit").innerHTML=(signup?"Criar conta":"Entrar na administração")+' <span aria-hidden="true">→</span>';$("toggle").textContent=signup?"Voltar para entrar":"♙  Criar conta de administrador";$("toggleText").textContent=signup?"Use somente para a conta do responsável.":"Acesso do administrador para gerenciar funcionárias e relatórios.";$("password").autocomplete=signup?"new-password":"current-password";hideMsg()};
+$("toggle").onclick=()=>{accessMode="admin";signup=!signup;$("chooseProfessional").classList.remove("on");$("chooseAdmin").classList.add("on");$("authTitle").textContent=signup?"Criar conta do administrador":"Área administrativa";$("authSubmit").innerHTML=(signup?"Criar conta":"Entrar na administração")+' <span aria-hidden="true">→</span>';$("toggle").textContent=signup?"Voltar para entrar":"Criar conta de administrador";$("toggleText").textContent=signup?"Use somente para a conta do responsável.":"Acesso do administrador para gerenciar funcionárias e relatórios.";$("password").autocomplete=signup?"new-password":"current-password";hideMsg()};
 $("authForm").dataset.ready="yes";$("authForm").onsubmit=async e=>{
  e.preventDefault();hideMsg();
  const btn=$("authSubmit"),label=signup?"Criar conta":"Entrar";
