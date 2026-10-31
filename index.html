@@ -536,7 +536,35 @@ async function loadMyRecords(){
   }
   $("myRecords").innerHTML=sheetHTML(a);
 }
-document.querySelectorAll("[data-punch]").forEach(b=>b.onclick=async()=>{b.disabled=true;try{let type=b.dataset.punch,date=dateNow(),q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).eq("data",date).limit(1).then(first);if(q.error)throw q.error;let now=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",hour12:false}),row=q.data;if(row?.[type])throw Error("Esse horário já foi registrado hoje.");if(!row){let j=await sb.from("se_ponto_jornadas").select("minutos_previstos").eq("funcionario_id",employee.id).eq("dia_semana",dayOfWeekNow()).limit(1).then(first);let x=await sb.from("se_ponto_registros").insert({funcionario_id:employee.id,data:date,criado_por:user.id,minutos_previstos:j.data?.minutos_previstos||0,tipo_ocorrencia:"normal",[type]:now});if(x.error)throw x.error}else{let x=await sb.from("se_ponto_registros").update({[type]:now,atualizado_em:new Date().toISOString(),criado_por:user.id}).eq("id",row.id);if(x.error)throw x.error}showMsg("Ponto registrado às "+now,"good");await loadMyRecords()}catch(err){showMsg(err.message,"error")}finally{b.disabled=false}});
+async function getPunchLocation(required){
+ if(!required||!navigator.geolocation)return {latitude:null,longitude:null,accuracy:null};
+ return await new Promise(resolve=>{
+  navigator.geolocation.getCurrentPosition(
+   p=>resolve({latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy}),
+   ()=>resolve({latitude:null,longitude:null,accuracy:null}),
+   {enableHighAccuracy:true,timeout:12000,maximumAge:0}
+  );
+ });
+}
+document.querySelectorAll("[data-punch]").forEach(b=>b.onclick=async()=>{
+ b.disabled=true;
+ try{
+  const {data:policy,error:policyError}=await sb.from("se_ponto_politicas_localizacao").select("exigir_gps").eq("empresa_id",employee.empresa_id).maybeSingle();
+  if(policyError)throw policyError;
+  const location=await getPunchLocation(policy?.exigir_gps!==false);
+  const result=await sb.functions.invoke("se-ponto-registrar-batida",{
+   body:{type:b.dataset.punch,...location,device:(navigator.userAgent||"navegador").slice(0,120)}
+  });
+  if(result.error)throw result.error;
+  if(result.data?.error)throw new Error(result.data.error);
+  if(!result.data?.success)throw new Error("O servidor não confirmou o registro.");
+  showMsg("Ponto registrado às "+String(result.data.time||"").slice(0,5)+(result.data.local?" · "+result.data.local:""),"good");
+  await loadMyRecords();
+ }catch(err){
+  const msg=err?.context?.json?.error||err?.message||"Não foi possível registrar o ponto.";
+  showMsg(msg,"error");
+ }finally{b.disabled=false}
+});
 $("loadReport").onclick=async()=>{if(!employees.length){$("report").textContent="Cadastre uma funcionária primeiro.";return}let m=$("month").value;if(!m){showMsg("Escolha o mês do relatório.","error");return}let q=await sb.from("se_ponto_registros").select("*").in("funcionario_id",employees.map(f=>f.id)).gte("data",m+"-01").lte("data",m+"-"+String(new Date(+m.slice(0,4),+m.slice(5,7),0).getDate()).padStart(2,"0")).order("data");if(q.error){showMsg(q.error.message,"error");return}records=q.data||[];let rows=employees.map(f=>{let a=records.filter(r=>r.funcionario_id===f.id),w=a.reduce((s,r)=>s+worked(r),0),p=a.reduce((s,r)=>s+(r.minutos_previstos||0),0);return{name:f.nome,count:a.length,w,p,b:w-p}});$("report").innerHTML='<table><tr><th>Funcionária</th><th>Dias</th><th>Trabalhado</th><th>Previsto</th><th>Saldo</th></tr>'+rows.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+r.count+'</td><td>'+duration(r.w)+'</td><td>'+duration(r.p)+'</td><td style="color:'+(r.b<0?'#c62828':r.b>0?'#9a6700':'#258044')+'">'+duration(r.b)+'</td></tr>').join("")+'</table>'};
 $("csv").onclick=()=>{let rows=[["Funcionária","Data","Entrada","Início intervalo","Fim intervalo","Saída","Trabalhado","Previsto","Saldo"]];(records||[]).forEach(r=>{let f=employees.find(x=>x.id===r.funcionario_id);rows.push([f?.nome||"",r.data,r.entrada||"",r.inicio_intervalo||"",r.fim_intervalo||"",r.saida||"",duration(worked(r)),duration(r.minutos_previstos||0),duration(worked(r)-(r.minutos_previstos||0))])});let blob=new Blob(["\ufeff"+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\r\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="seu-elizes-ponto-"+$("month").value+".csv";a.click();URL.revokeObjectURL(a.href)};
 /* ===================== v3: ao vivo, ranking, folha e fotos ===================== */
