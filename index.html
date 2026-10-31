@@ -30,53 +30,55 @@ if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/su
 <style>
 :root{--orange:#f36b12;--ink:#20252b;--muted:#68717c;--bg:#f4f5f7;--line:#e5e7eb}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px Inter,system-ui,Arial;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:12px 15px;background:var(--orange);color:white;font-weight:750}button.secondary{background:#fff;color:#222;border:1px solid var(--line)}button:disabled{opacity:.6;cursor:wait}.wrap{max-width:1120px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:-22px -22px 22px;padding:16px 22px;background:#fff;border-bottom:1px solid #e5e7eb;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:15px}.brand img{width:240px;height:120px;max-height:120px;object-fit:contain;object-position:center;background:transparent;border:0;border-radius:0;display:block;mix-blend-mode:multiply}.brand h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px}.panel,.stat{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 3px 12px #10182808}.panel h2{margin:0 0 8px;font-size:19px}.auth{max-width:500px;margin:25px auto}.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}.field label{font-size:13px;font-weight:700}.field input,.field select{width:100%;padding:12px;border:1px solid #d5d9df;border-radius:9px;background:#fff}.hidden{display:none!important}.notice{padding:12px;border-radius:10px;background:#fff3e8;color:#88400e;margin:12px 0}.good{background:#eaf7ed;color:#216e39}.error{background:#fff0f0;color:#a32121}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.stat strong{display:block;font-size:25px;margin-top:8px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tabs button{background:white;color:#333;border:1px solid var(--line)}.tabs button.active{background:var(--orange);color:white}.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.day{border:1px solid var(--line);padding:10px;border-radius:10px}.day label{display:flex;gap:8px;align-items:center;font-size:13px}.employee{padding:13px 0;border-bottom:1px solid var(--line)}.employee:last-child{border:0}.punch{width:100%;padding:18px;font-size:16px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}@media(max-width:600px){.wrap{padding:13px}.panel{padding:15px}.brand{gap:10px}.brand img{width:118px;height:76px;max-height:76px}.brand h1{font-size:18px}.sub{font-size:12px}.top{align-items:center;margin:-13px -13px 18px;padding:12px 13px}}
 
-/* Login premium Seu Elizes: layout responsivo em laranja, branco e grafite */
-body{background:radial-gradient(ellipse at 50% 35%,#fff 0%,#fff 38%,#f5f5f6 100%);min-height:100vh}
-.wrap{max-width:1600px;padding:0 26px 22px}
-.login-layout{min-height:100vh;display:grid;grid-template-columns:minmax(190px,1fr) minmax(430px,560px) minmax(190px,1fr);gap:34px;align-items:center;position:relative;overflow:hidden}
-.login-layout:before{content:"";position:absolute;z-index:0;left:-180px;top:-180px;width:360px;height:120%;background:linear-gradient(140deg,#f36b12 0 18%,#fff 18% 100%);opacity:.08;transform:skewX(-10deg);pointer-events:none}
-.login-layout:after{content:"";position:absolute;z-index:0;right:-220px;bottom:-280px;width:600px;height:600px;border-radius:50%;background:linear-gradient(135deg,#ffb06e,#f36b12);opacity:.11;pointer-events:none}
-.promo-left,.promo-right,.login-center{position:relative;z-index:1}
-.promo-left{padding:30px 8px 30px 14px;max-width:350px;justify-self:end}
-.eyebrow{font-size:12px;letter-spacing:1.7px;line-height:1.7;color:#6b7280;border-left:3px solid var(--orange);padding-left:13px;margin-bottom:30px}
-.promo-left h2{font-size:clamp(25px,2.1vw,37px);line-height:1.08;letter-spacing:-1px;margin:0 0 18px;font-weight:850}
-.promo-left h2 span{display:block;color:var(--orange)}
-.promo-left p{font-size:16px;line-height:1.65;color:#59616c;max-width:280px;margin:0 0 25px}
-.promo-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;border-top:2px solid var(--orange);padding-top:18px}
-.promo-mini-grid>div{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
-.promo-mini-grid b{display:grid;place-items:center;width:52px;height:52px;border:1px solid #f7a56d;border-radius:13px;color:var(--orange);font-size:27px;background:#fffaf6}
-.promo-mini-grid span{font-size:10px;line-height:1.4;font-weight:800;color:#454b54;letter-spacing:.3px}
-.login-center{width:100%;max-width:560px;justify-self:center;display:flex;flex-direction:column;align-items:stretch;padding:20px 0}
-.top{background:transparent;border:0;margin:0 0 20px;padding:0;justify-content:center;min-height:0}
-.brand{flex-direction:column;gap:8px;text-align:center;width:100%}
-.brand img{width:min(100%,390px);height:158px;max-height:158px;object-fit:contain;object-position:center;background:transparent;border:0;border-radius:0;mix-blend-mode:multiply}
-.brand h1{font-size:30px;letter-spacing:-.7px;margin:0;color:#20252b}
+/* Login ELIZES PONTO — landing page SaaS premium */
+body{background:#f8f8f7;min-height:100vh;color:#101923}
+.wrap{max-width:1800px;padding:0;min-height:100vh}
+.login-layout{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(500px,.8fr);gap:0;align-items:stretch;position:relative;overflow:hidden;background:#f8f8f7}
+.login-layout:before{content:"";position:absolute;z-index:0;right:-180px;top:-170px;width:430px;height:430px;border-radius:50%;background:#ff5a0a;pointer-events:none}
+.login-layout:after{content:"";position:absolute;z-index:0;right:-140px;bottom:-300px;width:600px;height:600px;border-radius:50%;background:linear-gradient(135deg,#ffd6bf,#ff5a0a);opacity:.8;pointer-events:none}
+.promo-left,.login-center{position:relative;z-index:1}
+.promo-left{min-height:100vh;padding:56px clamp(35px,5.2vw,90px);max-width:none;justify-self:stretch;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:linear-gradient(90deg,#fff 0%,#fff 42%,rgba(255,255,255,.94) 48%,rgba(255,255,255,.08) 100%)}
+.promo-left:before{content:"";position:absolute;z-index:-1;top:0;bottom:0;right:-2px;width:53%;background-image:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.56) 16%,rgba(255,255,255,0) 48%),url("https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1400&q=85");background-size:cover;background-position:center;clip-path:polygon(18% 0,100% 0,100% 100%,36% 100%,0 55%)}
+.promo-left:after{content:"";position:absolute;top:4%;right:43%;height:22%;width:14px;background:#ff5a0a;transform:skew(25deg);opacity:.95}
+.hero-brand{display:flex;flex-direction:column;align-items:flex-start;margin:0 0 40px;max-width:370px}
+.hero-brand img{width:min(100%,280px);height:110px;object-fit:contain;object-position:left center}
+.hero-brand span{font-size:13px;letter-spacing:5px;font-weight:700;color:#707b89;margin-top:5px}
+.eyebrow{font-size:12px;letter-spacing:2px;line-height:1.8;color:#788391;border-left:4px solid var(--orange);padding-left:14px;margin:0 0 30px}
+.promo-left h2{font-size:clamp(34px,3.1vw,48px);line-height:1.05;letter-spacing:-1.7px;margin:0 0 18px;font-weight:850;max-width:480px;color:#101923}
+.promo-left h2 span{display:block;color:#ff5a0a}
+.promo-left p{font-size:20px;line-height:1.45;color:#6b7582;max-width:430px;margin:0 0 26px}
+.promo-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(90px,120px));gap:16px 24px;border:0;padding:0;margin:0;max-width:430px}
+.promo-mini-grid>div{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+.promo-mini-grid b{display:grid;place-items:center;width:70px;height:70px;border:1px solid #ffd2b8;border-radius:14px;color:#ff5a0a;font-size:30px;background:#fff2e9}
+.promo-mini-grid span{font-size:14px;line-height:1.35;font-weight:750;color:#17212b;letter-spacing:0}
+.hero-quote{display:flex;align-items:flex-start;gap:14px;margin:38px 0 0;max-width:420px;color:#101923;font-size:23px;line-height:1.15;font-weight:850}
+.hero-quote b{font-size:58px;line-height:.7;color:#ff5a0a}
+.login-center{width:100%;max-width:650px;justify-self:center;align-self:center;display:flex;flex-direction:column;align-items:stretch;padding:48px clamp(26px,4vw,70px);margin:0 auto}
+.top{background:transparent;border:0;margin:0 0 28px;padding:0;justify-content:center;min-height:0}
+.brand{flex-direction:column;gap:5px;text-align:center;width:100%}
+.brand img{width:min(100%,290px);height:105px;max-height:105px;object-fit:contain;object-position:center;background:transparent;border:0;border-radius:0;mix-blend-mode:multiply}
+.brand h1{display:none}
+.brand .sub{font-size:12px;letter-spacing:4px;text-transform:uppercase;font-weight:750;color:#7a8492;margin-top:3px}
 .sub{font-size:14px}
-.brand .sub{font-size:15px;margin-top:4px}
-.auth{width:100%;max-width:none;margin:8px 0 0;padding:25px 26px 22px;border-radius:20px;border:1px solid #e9e9eb;box-shadow:0 18px 45px #17202b12;background:rgba(255,255,255,.94)}
-.auth h2{font-size:22px;letter-spacing:-.5px}
-.auth>p.sub{margin:8px 0 15px}
-.field{gap:7px;margin:13px 0}
-.field label{font-size:13px}
-.field input{padding:13px 14px;border-radius:10px;background:#edf3ff;border-color:#dce4f0;min-height:48px}
-#authSubmit{margin-top:3px;min-height:49px;border-radius:11px;background:linear-gradient(100deg,#f36b12,#ff790d);box-shadow:0 6px 14px #f36b1226;font-size:15px}
-#authSubmit span{font-size:20px;margin-left:8px;vertical-align:-1px}
-#toggleText{margin:16px 0 9px}
-#toggle{min-height:44px}
-.login-footer{display:flex;align-items:center;gap:12px;margin-top:22px;color:#9299a3;font-size:10px;letter-spacing:2px;font-weight:750;justify-content:center;text-align:center}
-.login-footer:before,.login-footer:after{content:"";height:1px;background:#d6d9dd;flex:1}
-.login-footer span{font-size:24px;color:var(--orange);letter-spacing:0}
-.promo-right{display:flex;flex-direction:column;gap:25px;max-width:330px;justify-self:start;padding:25px 0}
-.feature{display:flex;align-items:center;gap:14px}
-.feature>b{width:56px;height:56px;flex:0 0 56px;display:grid;place-items:center;border-radius:50%;background:#fff0e5;color:var(--orange);font-size:28px;font-weight:600}
-.feature>div{display:flex;flex-direction:column;gap:5px}
-.feature strong{font-size:14px;color:#20252b}
-.feature span{font-size:12px;line-height:1.5;color:#707782}
+.auth{width:100%;max-width:none;margin:0;padding:34px 34px 30px;border-radius:26px;border:1px solid #fff;box-shadow:0 22px 70px #17202b14;background:rgba(255,255,255,.97)}
+.access-choices{gap:10px!important;margin:0 0 28px!important}
+.access-choices button{min-height:72px;border-radius:14px;font-size:15px;font-weight:800;background:#f4f5f6;border:1px solid transparent;color:#26313d}
+.access-choices button:focus,.access-choices button:hover{border-color:#ff5a0a;background:#fff5ef;color:#f0520b}
+.auth h2{font-size:25px;letter-spacing:-.7px;margin:0 0 8px;color:#101923}
+.auth>p.sub{margin:0 0 20px;color:#687382;font-size:16px}
+.field{gap:7px;margin:14px 0}
+.field label{font-size:13px;font-weight:700;color:#657080}
+.field input{padding:15px 17px;border-radius:12px;background:#fff;border:1px solid #dfe3e8;min-height:56px;font-size:16px}
+#authSubmit{margin-top:9px;min-height:58px;border-radius:12px;background:linear-gradient(100deg,#ff4e08,#ff6900);box-shadow:none;font-size:17px;font-weight:800}
+#authSubmit span{font-size:23px;margin-left:12px;vertical-align:-2px}
+#toggleText{margin:18px 0 10px;color:#7a8492}
+#toggle{min-height:54px;width:100%;border-radius:12px;border:1px solid #ff5a0a;background:#fff8f3;color:#f0520b;font-weight:800}
+.login-footer{display:none}
+.promo-right{display:none}
 #admin,#staff{max-width:1120px;margin:0 auto}
-@media(max-width:1050px){.login-layout{grid-template-columns:minmax(0,1fr) minmax(400px,540px);gap:25px}.promo-left{display:none}.promo-right{max-width:260px}.login-center{grid-column:1;grid-row:1;justify-self:end}.promo-right{grid-column:2;grid-row:1}}
-@media(max-width:760px){.wrap{padding:0 14px 18px}.login-layout{display:flex;flex-direction:column;justify-content:center;gap:0;min-height:100svh;padding:12px 0}.promo-right{display:none}.login-center{max-width:520px;padding:12px 0}.top{margin-bottom:14px}.brand img{width:min(80vw,300px);height:112px;max-height:112px}.brand h1{font-size:24px}.brand .sub{font-size:12px}.auth{padding:21px 18px;border-radius:16px}.login-footer{font-size:8px;letter-spacing:1.3px;margin-top:17px}.login-footer:before,.login-footer:after{min-width:10px}}
-@media(max-width:380px){.brand img{height:95px}.brand h1{font-size:21px}.auth{padding:18px 15px}.login-footer{letter-spacing:.6px}}
-
+@media(max-width:1100px){.login-layout{grid-template-columns:minmax(0,1fr) minmax(440px,.9fr)}.promo-left{padding:42px 32px}.promo-left:before{width:48%;opacity:.75}.promo-mini-grid{gap:12px;grid-template-columns:repeat(3,minmax(72px,100px))}.promo-mini-grid b{width:60px;height:60px}}
+@media(max-width:800px){.wrap{padding:0}.login-layout{display:flex;flex-direction:column;min-height:100svh}.promo-left{min-height:auto;padding:34px 25px 26px;background:#fff}.promo-left:before,.promo-left:after{display:none}.hero-brand{margin-bottom:22px}.hero-brand img{height:78px;width:210px}.hero-brand span{font-size:10px;letter-spacing:3px}.eyebrow{margin-bottom:17px}.promo-left h2{font-size:32px;max-width:520px}.promo-left p{font-size:16px;max-width:520px;margin-bottom:18px}.promo-mini-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:520px}.promo-mini-grid b{width:48px;height:48px;font-size:23px}.promo-mini-grid span{font-size:11px}.hero-quote{display:none}.login-center{max-width:620px;padding:24px 20px 36px}.top{margin-bottom:18px}.brand img{height:75px;max-height:75px;width:220px}.brand .sub{font-size:10px;letter-spacing:3px}.auth{padding:24px 20px;border-radius:20px}.access-choices{grid-template-columns:1fr 1fr!important;gap:8px!important}.access-choices button{font-size:13px;min-height:62px}}
+@media(max-width:430px){.promo-left{padding:25px 20px 18px}.promo-left h2{font-size:28px}.promo-mini-grid{gap:5px}.promo-mini-grid b{width:43px;height:43px}.promo-mini-grid span{font-size:10px}.login-center{padding:18px 14px 28px}.auth{padding:22px 16px}.access-choices button{font-size:12px;min-height:58px}}
 #loginLayout:has(#auth.hidden){display:none}.app-logout{position:fixed;top:16px;right:20px;z-index:50}
  
 /* Área profissional: painel pessoal e folha digital */
@@ -178,24 +180,29 @@ body{background:radial-gradient(ellipse at 50% 35%,#fff 0%,#fff 38%,#f5f5f6 100%
 <button id="logout" class="secondary hidden app-logout">Sair</button>
 <div class="login-layout" id="loginLayout">
 <aside class="promo-left">
-<div class="eyebrow">GESTÃO INTELIGENTE<br>ORGANIZAÇÃO<br>RESULTADOS</div>
-<h2>GESTÃO DE PESSOAS <span>MAIS SIMPLES</span></h2>
-<p>Controle a jornada, organize sua equipe e acompanhe os resultados da sua empresa em um só lugar.</p>
+<div class="hero-brand"><img src="/logo-elizes-ponto.svg" alt="ELIZES PONTO"><span>CONTROLE DE JORNADA DA SUA EQUIPE</span></div>
+<div class="eyebrow">CONTROLE DE JORNADA<br>GESTÃO DE PESSOAS<br>RESULTADOS</div>
+<h2>Gestão de pessoas <span>mais simples</span> e eficiente</h2>
+<p>Registre jornadas, gerencie escalas, acompanhe horas e tenha relatórios completos para a sua empresa.</p>
 <div class="promo-mini-grid">
-<div><b>♧</b><span>EQUIPE<br>VALORIZADA</span></div>
-<div><b>▥</b><span>GESTÃO<br>EFICIENTE</span></div>
-<div><b>✓</b><span>ROTINA<br>ORGANIZADA</span></div>
+<div><b>◷</b><span>Controle<br>de jornada</span></div>
+<div><b>♧</b><span>Gestão<br>de equipe</span></div>
+<div><b>▥</b><span>Relatórios<br>completos</span></div>
+<div><b>▦</b><span>Escalas<br>e turnos</span></div>
+<div><b>▤</b><span>Banco<br>de horas</span></div>
+<div><b>⚙</b><span>Tudo em<br>um só lugar</span></div>
 </div>
+<div class="hero-quote"><b>“</b><span>Organização hoje,<br>resultados sempre.</span></div>
 </aside>
 <main class="login-center">
-<header class="top"><div class="brand"><div class="se-logo se-logo-image"><img src="/logo-elizes-ponto.svg" alt="Logo ELIZES PONTO"></div><div class="brand-copy"><h1>Seu Elizes Ponto</h1><div class="sub">Gestão de jornada para empresas</div></div></div></header>
+<header class="top"><div class="brand"><div class="se-logo se-logo-image"><img src="/logo-elizes-ponto.svg" alt="ELIZES PONTO"></div><div class="brand-copy"><div class="sub">CONTROLE DE JORNADA DA SUA EQUIPE</div></div></div></header>
 <section id="auth" class="panel auth"><div class="access-choices" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 22px">
 <button id="chooseProfessional" type="button" class="secondary">♙ Área profissional</button>
 <button id="chooseAdmin" type="button" class="secondary">⚙ Área administrativa</button>
 </div>
 <h2 id="authTitle">Acessar o sistema</h2><p class="sub">Entre com seu e-mail e senha.</p><form id="authForm"><div class="field"><label>E-mail</label><input id="email" type="email" required autocomplete="username"></div><div class="field"><label>Senha</label><input id="password" type="password" required minlength="8" autocomplete="current-password"></div><button id="authSubmit" style="width:100%">Entrar <span aria-hidden="true">→</span></button></form><button id="professionalAccess" class="secondary hidden" type="button" style="width:100%;margin:0 0 12px;border-color:#f6a36b;color:#c9570b">♙ &nbsp; Área do profissional — Minha folha de ponto</button>
 <p id="toggleText" class="sub">Primeiro acesso do administrador?</p><button id="toggle" class="secondary">♙ &nbsp; Criar conta de administrador</button></section>
-<footer class="login-footer"><span>✂</span><div>ELIZES PONTO • GESTÃO DE JORNADA PARA EMPRESAS</div></footer>
+
 </main>
 <aside class="promo-right">
 <div class="feature"><b>◷</b><div><strong>Controle de jornada</strong><span>Registre entradas, saídas e intervalos com facilidade.</span></div></div>
