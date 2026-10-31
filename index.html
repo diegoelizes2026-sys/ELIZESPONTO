@@ -142,6 +142,7 @@ body{background:#f8f8f7;min-height:100vh;color:#111923}
 .access-choices button{border:1px solid #e5e7eb;background:#fff;color:#222;padding:13px 10px;border-radius:12px;font-weight:700}
 .access-choices button.on{border-color:#f36b12;color:#c9570b;background:#fff7f1}
 
+.punch-mini .punch-photo-link{display:block;width:max-content;margin:4px auto 0;font-size:9px;padding:2px 5px}
 .punch-photo-link{display:inline-flex;align-items:center;margin-left:5px;padding:3px 6px;border-radius:7px;background:#fff2e8;color:#c9570b;font-size:10px;font-weight:800;text-decoration:none;border:1px solid #ffd8bf}.punch-photo-link:hover{background:#ffe5d4}
 /* v3: ao vivo, ranking, fotos */
 .status-blue{background:#e8f0ff;color:#2457c5}
@@ -758,6 +759,42 @@ async function loadLive(){
  const today=serverClock.data_atual,nowM=mins(serverClock.hora_atual),weekday=Number(serverClock.dia_semana);
  const rq=await sb.from("se_ponto_registros").select("*").in("funcionario_id",ids).eq("data",today);
  if(rq.error){showMsg("Não foi possível carregar o ao vivo: "+rq.error.message,"error");return}
+ // Gera URLs temporárias das fotos de cada batida. Se registros antigos não tiverem o caminho gravado,
+ // tenta localizar a foto enviada no diretório privado da própria funcionária pelo horário do registro.
+ const livePhotoMap=new Map();
+ for(const f of employees){
+  const r=(rq.data||[]).find(x=>x.funcionario_id===f.id);
+  if(!r)continue;
+  const fields={entrada:"foto_entrada_path",inicio_intervalo:"foto_inicio_intervalo_path",fim_intervalo:"foto_fim_intervalo_path",saida:"foto_saida_path"};
+  let paths=Object.values(fields).map(k=>r[k]).filter(Boolean);
+  if(r.foto_comprovante_path)paths.push(r.foto_comprovante_path);
+  if(!paths.length){
+   try{
+    const folder=company.id+"/"+f.id;
+    const listed=await sb.storage.from("se-ponto-comprovantes").list(folder,{limit:100,sortBy:{column:"created_at",order:"desc"}});
+    if(!listed.error&&listed.data?.length){
+     const target=new Date(r.criado_em||today+"T12:00:00-03:00").getTime();
+     const candidates=listed.data.filter(x=>x.name?.endsWith(".jpg")).map(x=>({path:folder+"/"+x.name,stamp:Number(x.name.split("-")[0])})).filter(x=>Number.isFinite(x.stamp));
+     candidates.sort((a,b)=>Math.abs(a.stamp-target)-Math.abs(b.stamp-target));
+     if(candidates.length&&Math.abs(candidates[0].stamp-target)<10*60*1000)paths.push(candidates[0].path);
+    }
+   }catch(e){console.warn("Busca de foto no ao vivo:",e)}
+  }
+  paths=[...new Set(paths)];
+  if(paths.length){
+   try{
+    const signed=await sb.storage.from("se-ponto-comprovantes").createSignedUrls(paths,3600);
+    if(!signed.error)(signed.data||[]).forEach(x=>{if(x.path&&x.signedUrl)livePhotoMap.set(x.path,x.signedUrl)});
+   }catch(e){console.warn("URL da foto no ao vivo:",e)}
+  }
+  const punches=["entrada","inicio_intervalo","fim_intervalo","saida"].filter(k=>r[k]);
+  const last=punches[punches.length-1];
+  r.livePhotoUrls={};
+  Object.entries(fields).forEach(([k,col])=>{
+   const path=r[col]||(last===k?r.foto_comprovante_path:null)||paths[0];
+   if(path&&livePhotoMap.has(path))r.livePhotoUrls[k]=livePhotoMap.get(path);
+  });
+ }
  let js=[];
  try{const jq=await sb.from("se_ponto_jornadas").select("*").in("funcionario_id",ids).eq("dia_semana",weekday);if(!jq.error)js=jq.data||[]}catch(e){}
  const cnt={trab:0,intervalo:0,fim:0,sem:0};
@@ -774,7 +811,8 @@ async function loadLive(){
   const w=r?worked(r):0,exp=Number(r?.minutos_previstos||j?.minutos_previstos||0),pct=exp?Math.min(100,Math.round(w/exp*100)):0;
   let foot='<span>Trabalhado: <b>'+duration(w)+'</b></span><span>'+(exp?'Previsto: <b>'+duration(exp)+'</b>':'')+'</span>';
   if(r&&r.entrada&&!r.saida&&exp)foot+='<span style="width:100%">'+(exp>w?'Faltam <b>'+duration(exp-w)+'</b> para completar a jornada':'Jornada prevista já cumprida — <b>'+duration(w-exp)+'</b> a mais')+'</span>';
-  return'<div class="live-card '+card+'"><div class="live-top">'+avatar(f,52)+'<div><b>'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+'</div></div></div><span class="status-pill '+cls+'">'+label+'</span><div class="punch-mini"><div><small>ENTRADA</small><strong>'+hhmm(r?.entrada)+'</strong></div><div><small>INTERVALO</small><strong>'+hhmm(r?.inicio_intervalo)+'</strong></div><div><small>RETORNO</small><strong>'+hhmm(r?.fim_intervalo)+'</strong></div><div><small>SAÍDA</small><strong>'+hhmm(r?.saida)+'</strong></div></div><div class="bar"><i style="width:'+pct+'%"></i></div><div class="live-foot">'+foot+'</div></div>';
+  const photoLink=k=>r?.livePhotoUrls?.[k]?' <a class="punch-photo-link" href="'+esc(r.livePhotoUrls[k])+'" target="_blank" rel="noopener" title="Ver foto desta batida">📷 Foto</a>':"";
+  return'<div class="live-card '+card+'"><div class="live-top">'+avatar(f,52)+'<div><b>'+esc(f.nome)+medalTag(f.id)+'</b><div class="sub">'+esc(f.funcao||"Funcionária")+'</div></div></div><span class="status-pill '+cls+'">'+label+'</span><div class="punch-mini"><div><small>ENTRADA</small><strong>'+hhmm(r?.entrada)+photoLink("entrada")+'</strong></div><div><small>INTERVALO</small><strong>'+hhmm(r?.inicio_intervalo)+photoLink("inicio_intervalo")+'</strong></div><div><small>RETORNO</small><strong>'+hhmm(r?.fim_intervalo)+photoLink("fim_intervalo")+'</strong></div><div><small>SAÍDA</small><strong>'+hhmm(r?.saida)+photoLink("saida")+'</strong></div></div><div class="bar"><i style="width:'+pct+'%"></i></div><div class="live-foot">'+foot+'</div></div>';
  });
  $("liveSummary").innerHTML='<span class="status-pill status-green">'+cnt.trab+' trabalhando</span><span class="status-pill status-blue">'+cnt.intervalo+' em intervalo</span><span class="status-pill status-neutral">'+cnt.fim+' encerraram o dia</span><span class="status-pill status-red">'+cnt.sem+' sem ponto</span>';
  $("liveGrid").innerHTML=cards.join("");
