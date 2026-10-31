@@ -347,14 +347,15 @@ table{max-width:100%}
 </aside>
 </div>
 <section id="admin" class="hidden"><div class="grid"><div class="stat"><span class="sub">Funcionárias cadastradas</span><strong id="count">0</strong></div><div class="stat"><span class="sub">Registros neste mês</span><strong id="recordsCount">0</strong></div><div class="stat"><span class="sub">Perfil</span><strong style="font-size:22px">Administrador</strong></div></div>
-<div class="tabs"><button class="active" data-tab="live">● Ao vivo</button><button data-tab="rank">🏆 Ranking</button><button data-tab="sheet">Folha de ponto</button><button data-tab="staff">Funcionárias</button><button data-tab="report">Relatório mensal</button></div>
+<div class="tabs"><button class="active" data-tab="live">● Ao vivo</button><button data-tab="rank">🏆 Ranking</button><button data-tab="sheet">Folha de ponto</button><button data-tab="staff">Funcionárias</button><button data-tab="report">Relatório mensal</button><button data-tab="location">Localização</button></div>
 <div id="liveTab" class="panel tabpanel"><div class="live-head"><div><h2><span class="live-dot"></span> Ponto ao vivo — hoje</h2><p class="sub">Veja quem já bateu o ponto, quem está em intervalo e como está o dia de cada funcionária. Atualiza sozinho a cada 15 segundos.</p></div><div class="sub">Atualizado às <b id="liveStamp">—</b> <button class="secondary" id="liveNow" type="button" style="padding:8px 12px;margin-left:6px">Atualizar</button></div></div><div id="liveSummary" class="live-summary"></div><div id="liveGrid" class="live-grid"><p class="sub">Carregando…</p></div></div>
 <div id="rankTab" class="panel tabpanel hidden"><h2>🏆 Ranking de pontualidade</h2><p class="sub">Quem bate o ponto certinho e cumpre a jornada sobe no ranking.</p><div class="legend-box">🥇 <b>Ouro</b>: 85 pontos ou mais &nbsp;·&nbsp; 🥈 <b>Prata</b>: 60 a 84 &nbsp;·&nbsp; 🥉 <b>Bronze</b>: abaixo de 60<br>Cada dia vale: <span class="status-pill status-green">Verde = 100</span> <span class="status-pill status-yellow">Amarelo (hora extra) = 75</span> <span class="status-pill status-red">Vermelho (faltou hora) = 40</span> <span class="status-pill status-neutral">Ponto incompleto = 0</span></div><div class="grid"><div class="field"><label>Mês</label><input id="rankMonth" type="month"></div></div><div id="rankList"></div></div>
 <div id="sheetTab" class="panel tabpanel hidden"><h2>Folha de ponto da funcionária</h2><p class="sub">Todas as batidas de cada dia, horas trabalhadas e situação.</p><div class="grid"><div class="field"><label>Funcionária</label><select id="sheetEmp"></select></div><div class="field"><label>Mês</label><input id="sheetMonth" type="month"></div></div><div id="sheetOut"></div></div>
 <div id="staffTab" class="panel tabpanel hidden"><h2>Cadastrar funcionária</h2><p class="sub">Você cria a conta dela e define os horários. Entregue o e-mail e a senha temporária à funcionária.</p>
 <form id="employeeForm"><div class="grid"><div class="field"><label>Nome completo</label><input id="empName" required></div><div class="field"><label>Função</label><input id="empRole" value="Funcionária" required></div><div class="field"><label>E-mail de acesso</label><input id="empEmail" type="email" required></div><div class="field"><label>Senha temporária (mínimo 8 caracteres)</label><input id="empPassword" type="password" minlength="8" required></div><div class="field"><label>Carga semanal</label><select id="load"><option value="2640">44 horas</option><option value="2400">40 horas</option><option value="2200">36h40</option></select></div><div class="field"><label>Observações</label><input id="notes"></div><div class="field"><label>Foto da funcionária (opcional)</label><input id="empPhoto" type="file" accept="image/*"></div></div>
 <div class="field"><label>Dias de trabalho (desmarque as folgas)</label><div class="days" id="days"></div></div><div class="grid"><div class="field"><label>Entrada</label><input id="entry" type="time" value="08:30" required></div><div class="field"><label>Saída para intervalo</label><input id="break1" type="time" value="12:30" required></div><div class="field"><label>Retorno do intervalo</label><input id="break2" type="time" value="15:12" required></div><div class="field"><label>Saída final</label><input id="exit" type="time" value="20:00" required></div></div><button id="createBtn">Cadastrar funcionária e gerar acesso</button></form><div id="employees" style="margin-top:20px"></div></div>
-<div id="reportTab" class="panel tabpanel hidden"><h2>Relatório mensal</h2><div class="grid"><div class="field"><label>Mês</label><input id="month" type="month"></div><div class="field" style="justify-content:end"><button id="loadReport">Consultar relatório</button></div></div><div id="report" class="tablewrap"></div><button class="secondary" id="csv" style="margin-top:12px">Exportar CSV</button></div></section>
+<div id="reportTab" class="panel tabpanel hidden"><h2>Relatório mensal</h2><div class="grid"><div class="field"><label>Mês</label><input id="month" type="month"></div><div class="field" style="justify-content:end"><button id="loadReport">Consultar relatório</button></div></div><div id="report" class="tablewrap"></div><button class="secondary" id="csv" style="margin-top:12px">Exportar CSV</button></div>
+<div id="locationTab" class="panel tabpanel hidden"><h2>Regras de localização do ponto</h2><p class="sub">Defina quando o funcionário pode registrar o ponto fora da unidade e quais locais serão considerados autorizados.</p><div class="grid"><div class="field"><label>Regra de localização</label><select id="locMode"><option value="ambos">Unidade ou remoto (configurável)</option><option value="unidades">Somente nas unidades cadastradas</option><option value="livre">Qualquer local</option></select></div><div class="field"><label>Raio padrão da unidade (metros)</label><input id="locRadius" type="number" min="25" max="2000" value="150"></div></div><div class="grid"><div class="field"><label><input id="locAllowRemote" type="checkbox" checked> Permitir registro remoto</label><small class="sub">Quando ativado, o funcionário poderá registrar fora das unidades cadastradas.</small></div><div class="field"><label><input id="locRequireGps" type="checkbox" checked> Solicitar localização do dispositivo</label><small class="sub">A localização será solicitada no momento da batida.</small></div><div class="field"><label><input id="locAllowNoGps" type="checkbox"> Permitir registro sem GPS</label><small class="sub">Use somente se a política da empresa permitir.</small></div></div><button id="saveLocPolicy">Salvar regras de localização</button><hr style="border:0;border-top:1px solid #e5e7eb;margin:22px 0"><h3>Unidades autorizadas</h3><p class="sub">Cadastre as coordenadas de cada unidade. Você pode copiar latitude e longitude do Google Maps.</p><div class="grid"><div class="field"><label>Nome da unidade</label><input id="locName" placeholder="Ex.: Centro do Eusébio"></div><div class="field"><label>Latitude</label><input id="locLat" type="number" step="any" placeholder="-3.89"></div><div class="field"><label>Longitude</label><input id="locLng" type="number" step="any" placeholder="-38.45"></div><div class="field"><label>Raio (metros)</label><input id="locSiteRadius" type="number" min="25" max="2000" value="150"></div></div><button class="secondary" id="addLoc">Adicionar unidade</button><div id="locList" style="margin-top:16px"></div><p class="sub" style="margin-top:14px">Observação: a localização do navegador é um sinal de apoio e pode sofrer falsificação. A validação definitiva e antifraude do registro será feita na etapa de servidor antes de liberar o controle geográfico como mecanismo de segurança.</p></div></section>
 <section id="staff" class="hidden">
 <div class="prof-head">
   <div style="display:flex;align-items:center;gap:14px"><span id="myAvatar"></span><div><div class="prof-kicker">Minha área profissional</div><h2 id="hello">Olá!</h2><p>Seu ponto, sua jornada e seu histórico em um só lugar.</p></div></div>
@@ -731,9 +732,44 @@ function selectTab(name){
  document.querySelectorAll(".tabpanel").forEach(p=>p.classList.toggle("hidden",p.id!==name+"Tab"));
  if(name==="live")startLive();
  if(name==="rank")loadRank();
- if(name==="sheet")loadSheet();
+ if(name==="sheet")loadSheet();\n if(name==="location")loadLocationSettings().catch(e=>showMsg("Erro ao carregar regras: "+e.message,"error"));
 }
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));
+async function loadLocationSettings(){
+ if(!company?.id)return;
+ const [p,l]=await Promise.all([
+  sb.from("se_ponto_politicas_localizacao").select("*").eq("empresa_id",company.id).maybeSingle(),
+  sb.from("se_ponto_locais_autorizados").select("*").eq("empresa_id",company.id).order("nome")
+ ]);
+ if(p.error)throw p.error;if(l.error)throw l.error;
+ const v=p.data||{modo:"ambos",raio_metros:150,exigir_gps:true,permitir_sem_gps:false,permitir_remoto:true};
+ $("locMode").value=v.modo;$("locRadius").value=v.raio_metros;
+ $("locRequireGps").checked=v.exigir_gps;$("locAllowNoGps").checked=v.permitir_sem_gps;
+ $("locAllowRemote").checked=v.permitir_remoto!==false;
+ $("locList").innerHTML=(l.data||[]).length?(l.data||[]).map(x=>'<div class="employee" style="display:flex;gap:12px;align-items:center;justify-content:space-between"><div><b>'+esc(x.nome)+'</b><div class="sub">'+Number(x.latitude).toFixed(6)+', '+Number(x.longitude).toFixed(6)+' · raio '+x.raio_metros+' m</div></div><button class="secondary" data-remove-loc="'+x.id+'" type="button">Remover</button></div>').join(""):'<p class="sub">Nenhuma unidade cadastrada.</p>';
+ document.querySelectorAll("[data-remove-loc]").forEach(b=>b.onclick=async()=>{if(!confirm("Remover esta unidade autorizada?"))return;const z=await sb.from("se_ponto_locais_autorizados").delete().eq("id",b.dataset.removeLoc).eq("empresa_id",company.id);if(z.error){showMsg(z.error.message,"error");return}await loadLocationSettings();showMsg("Unidade removida.","good")});
+}
+$("saveLocPolicy").onclick=async()=>{
+ const b=$("saveLocPolicy");b.disabled=true;
+ try{
+  const row={empresa_id:company.id,modo:$("locMode").value,raio_metros:Number($("locRadius").value),exigir_gps:$("locRequireGps").checked,permitir_sem_gps:$("locAllowNoGps").checked,permitir_remoto:$("locAllowRemote").checked,updated_by:user.id,updated_at:new Date().toISOString()};
+  if(row.raio_metros<25||row.raio_metros>2000)throw Error("O raio deve ficar entre 25 e 2.000 metros.");
+  const z=await sb.from("se_ponto_politicas_localizacao").upsert(row,{onConflict:"empresa_id"});if(z.error)throw z.error;
+  showMsg("Regras de localização salvas.","good");
+ }catch(e){showMsg("Não foi possível salvar: "+e.message,"error")}finally{b.disabled=false}
+};
+$("addLoc").onclick=async()=>{
+ const b=$("addLoc");b.disabled=true;
+ try{
+  const row={empresa_id:company.id,nome:$("locName").value.trim(),latitude:Number($("locLat").value),longitude:Number($("locLng").value),raio_metros:Number($("locSiteRadius").value)};
+  if(!row.nome||!$("locLat").value||!$("locLng").value)throw Error("Informe nome, latitude e longitude.");
+  if(!Number.isFinite(row.latitude)||row.latitude < -90||row.latitude > 90||!Number.isFinite(row.longitude)||row.longitude < -180||row.longitude > 180)throw Error("Latitude ou longitude inválida.");
+  const z=await sb.from("se_ponto_locais_autorizados").insert(row);if(z.error)throw z.error;
+  $("locName").value=$("locLat").value=$("locLng").value="";
+  await loadLocationSettings();showMsg("Unidade cadastrada.","good");
+ }catch(e){showMsg("Não foi possível cadastrar a unidade: "+e.message,"error")}finally{b.disabled=false}
+};
+
 $("liveNow").onclick=loadLive;$("rankMonth").onchange=loadRank;$("sheetEmp").onchange=loadSheet;$("sheetMonth").onchange=loadSheet;
 $("rankMonth").value=$("sheetMonth").value=dateNow().slice(0,7);
 /* ---- lista de funcionárias (com foto) ---- */
