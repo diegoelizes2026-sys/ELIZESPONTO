@@ -178,9 +178,9 @@ body{background:radial-gradient(ellipse at 50% 35%,#fff 0%,#fff 38%,#f5f5f6 100%
 <button id="logout" class="secondary hidden app-logout">Sair</button>
 <div class="login-layout" id="loginLayout">
 <aside class="promo-left">
-<div class="eyebrow">DISCIPLINA<br>ORGANIZAÇÃO<br>RESULTADOS</div>
-<h2>NOSSA EQUIPE FAZ <span>A DIFERENÇA</span></h2>
-<p>Mais organização, mais produtividade e um ambiente ainda mais forte.</p>
+<div class="eyebrow">GESTÃO INTELIGENTE<br>ORGANIZAÇÃO<br>RESULTADOS</div>
+<h2>GESTÃO DE PESSOAS <span>MAIS SIMPLES</span></h2>
+<p>Controle a jornada, organize sua equipe e acompanhe os resultados da sua empresa em um só lugar.</p>
 <div class="promo-mini-grid">
 <div><b>♧</b><span>EQUIPE<br>VALORIZADA</span></div>
 <div><b>▥</b><span>GESTÃO<br>EFICIENTE</span></div>
@@ -188,18 +188,18 @@ body{background:radial-gradient(ellipse at 50% 35%,#fff 0%,#fff 38%,#f5f5f6 100%
 </div>
 </aside>
 <main class="login-center">
-<header class="top"><div class="brand"><div class="se-logo se-logo-image"><img src="/logo-elizes-ponto.svg" alt="Barbershop Seu Elizes Prime"></div><div class="brand-copy"><h1>ELIZES PONTO</h1><div class="sub">Controle de jornada</div></div></div></header>
+<header class="top"><div class="brand"><div class="se-logo se-logo-image"><img src="/logo-elizes-ponto.svg" alt="Logo ELIZES PONTO"></div><div class="brand-copy"><h1>Seu Elizes Ponto</h1><div class="sub">Gestão de jornada para empresas</div></div></div></header>
 <section id="auth" class="panel auth"><div class="access-choices" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 22px">
 <button id="chooseProfessional" type="button" class="secondary">♙ Área profissional</button>
 <button id="chooseAdmin" type="button" class="secondary">⚙ Área administrativa</button>
 </div>
 <h2 id="authTitle">Acessar o sistema</h2><p class="sub">Entre com seu e-mail e senha.</p><form id="authForm"><div class="field"><label>E-mail</label><input id="email" type="email" required autocomplete="username"></div><div class="field"><label>Senha</label><input id="password" type="password" required minlength="8" autocomplete="current-password"></div><button id="authSubmit" style="width:100%">Entrar <span aria-hidden="true">→</span></button></form><button id="professionalAccess" class="secondary hidden" type="button" style="width:100%;margin:0 0 12px;border-color:#f6a36b;color:#c9570b">♙ &nbsp; Área do profissional — Minha folha de ponto</button>
 <p id="toggleText" class="sub">Primeiro acesso do administrador?</p><button id="toggle" class="secondary">♙ &nbsp; Criar conta de administrador</button></section>
-<footer class="login-footer"><span>✂</span><div>BARBEARIA SEU ELIZES • CONTROLE DE JORNADA</div></footer>
+<footer class="login-footer"><span>✂</span><div>ELIZES PONTO • GESTÃO DE JORNADA PARA EMPRESAS</div></footer>
 </main>
 <aside class="promo-right">
-<div class="feature"><b>◷</b><div><strong>Controle de jornada</strong><span>Registre entradas, saídas e intervalos.</span></div></div>
-<div class="feature"><b>▥</b><div><strong>Relatórios completos</strong><span>Acompanhe a produtividade da equipe.</span></div></div>
+<div class="feature"><b>◷</b><div><strong>Controle de jornada</strong><span>Registre entradas, saídas e intervalos com facilidade.</span></div></div>
+<div class="feature"><b>▥</b><div><strong>Relatórios completos</strong><span>Tenha relatórios claros e organizados.</span></div></div>
 <div class="feature"><b>♧</b><div><strong>Gestão de equipe</strong><span>Tudo organizado em um só lugar.</span></div></div>
 <div class="feature"><b>◇</b><div><strong>Mais segurança</strong><span>Dados protegidos e acesso individual.</span></div></div>
 </aside>
@@ -333,7 +333,7 @@ async function route(){
     if(accessMode==="admin"){
       if(owner.data){company=owner.data;show("admin");await loadEmployees();return;}
       if(user.user_metadata?.perfil==="admin"){
-        const created=await sb.from("se_ponto_empresas").insert({owner_user_id:user.id,nome:"Barbearia Seu Elizes"}).select("*").single();
+        const created=await sb.from("se_ponto_empresas").insert({owner_user_id:user.id,nome:"Minha empresa"}).select("*").single();
         if(created.error)throw created.error;
         company=created.data;show("admin");await loadEmployees();return;
       }
@@ -740,7 +740,7 @@ async function loadSheet(){
  $("pdfM").onclick=()=>{const w=window.open("","_blank");if(!w)return showMsg("Libere pop-ups para gerar o PDF.","error");w.document.write(reportHTML(c));w.document.close();setTimeout(()=>w.print(),500)};
  $("xlsM").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+reportHTML(c)],{type:"application/vnd.ms-excel"}));a.download="folha-"+f.nome.replace(/\s+/g,"-")+"-"+m+".xls";a.click();URL.revokeObjectURL(a.href)};
 }
-function reportHTML(c){const f=c.f,t=c.t;return'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Folha de ponto - '+esc(f.nome)+' - '+c.m+'</title><style>body{font:12px Arial;margin:24px;color:#222}h1{font-size:18px;margin:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left}th{background:#f0f0f0}.sig{display:flex;gap:60px;margin-top:60px}.sig div{flex:1;border-top:1px solid #000;padding-top:4px;text-align:center}.t td{border:0;padding:2px 12px 2px 0}</style></head><body><h1>Barbearia Seu Elizes — Folha de ponto</h1><p><b>Funcionária:</b> '+esc(f.nome)+' &nbsp; <b>Função:</b> '+esc(f.funcao||"Funcionária")+' &nbsp; <b>Mês de referência:</b> '+c.m.split("-").reverse().join("/")+'<br><b>Jornada contratual:</b> '+esc(jornadaTxt(c.js))+(c.closed?'<br><b>Folha fechada em</b> '+new Date(c.closed.fechado_em).toLocaleDateString("pt-BR"):'')+'</p><table><thead><tr>'+HEAD+'</tr></thead><tbody>'+rowsHTML(c,false)+'</tbody></table><table class="t"><tr><td><b>Previsto:</b> '+duration(t.prev)+'</td><td><b>Realizado:</b> '+duration(t.real)+'</td><td><b>Extras:</b> '+duration(t.extra)+'</td><td><b>Negativas:</b> '+duration(t.neg)+'</td><td><b>Saldo do banco de horas:</b> '+duration(t.saldo)+'</td></tr><tr><td><b>Atrasos:</b> '+t.atraso+' min</td><td><b>Dias trabalhados:</b> '+t.trab+'</td><td><b>Registros incompletos:</b> '+t.inc+'</td><td><b>Faltas não justificadas:</b> '+t.faltas+'</td><td></td></tr></table><p style="font-size:10px;color:#666">Saldo positivo é registrado como banco de horas; a forma de compensação ou pagamento depende do contrato e do acordo aplicável.</p><div class="sig"><div>Funcionária</div><div>Responsável</div></div></body></html>'}
+function reportHTML(c){const f=c.f,t=c.t;return'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Folha de ponto - '+esc(f.nome)+' - '+c.m+'</title><style>body{font:12px Arial;margin:24px;color:#222}h1{font-size:18px;margin:0}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left}th{background:#f0f0f0}.sig{display:flex;gap:60px;margin-top:60px}.sig div{flex:1;border-top:1px solid #000;padding-top:4px;text-align:center}.t td{border:0;padding:2px 12px 2px 0}</style></head><body><h1>ELIZES PONTO — Folha de ponto</h1><p><b>Funcionária:</b> '+esc(f.nome)+' &nbsp; <b>Função:</b> '+esc(f.funcao||"Funcionária")+' &nbsp; <b>Mês de referência:</b> '+c.m.split("-").reverse().join("/")+'<br><b>Jornada contratual:</b> '+esc(jornadaTxt(c.js))+(c.closed?'<br><b>Folha fechada em</b> '+new Date(c.closed.fechado_em).toLocaleDateString("pt-BR"):'')+'</p><table><thead><tr>'+HEAD+'</tr></thead><tbody>'+rowsHTML(c,false)+'</tbody></table><table class="t"><tr><td><b>Previsto:</b> '+duration(t.prev)+'</td><td><b>Realizado:</b> '+duration(t.real)+'</td><td><b>Extras:</b> '+duration(t.extra)+'</td><td><b>Negativas:</b> '+duration(t.neg)+'</td><td><b>Saldo do banco de horas:</b> '+duration(t.saldo)+'</td></tr><tr><td><b>Atrasos:</b> '+t.atraso+' min</td><td><b>Dias trabalhados:</b> '+t.trab+'</td><td><b>Registros incompletos:</b> '+t.inc+'</td><td><b>Faltas não justificadas:</b> '+t.faltas+'</td><td></td></tr></table><p style="font-size:10px;color:#666">Saldo positivo é registrado como banco de horas; a forma de compensação ou pagamento depende do contrato e do acordo aplicável.</p><div class="sig"><div>Funcionária</div><div>Responsável</div></div></body></html>'}
 function editDay(date){
  const c=sheetCtx,x=c.days.find(d=>d.date===date),r=x.r||{},f=c.f;
  const tf=(id,l,v)=>'<label style="font-size:12px;font-weight:700">'+l+'<input id="'+id+'" type="time" value="'+(v?hhmm(v):"")+'" style="width:100%;padding:8px;margin-top:4px;border:1px solid #d5d9df;border-radius:8px"></label>';
