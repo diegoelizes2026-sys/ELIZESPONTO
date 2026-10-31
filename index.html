@@ -546,19 +546,50 @@ async function getPunchLocation(required){
   );
  });
 }
+async function capturePunchPhoto(){
+ return await new Promise(async(resolve,reject)=>{
+  let stream=null,done=false;
+  const finish=(value,error)=>{if(done)return;done=true;if(stream)stream.getTracks().forEach(t=>t.stop());dialog.remove();error?reject(error):resolve(value);};
+  const dialog=document.createElement("div");
+  dialog.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(8,12,20,.82);display:flex;align-items:center;justify-content:center;padding:16px";
+  dialog.innerHTML='<div style="background:#fff;color:#17202b;border-radius:18px;padding:20px;width:min(440px,100%);box-shadow:0 20px 60px #0006"><h2 style="margin:0 0 8px">Foto obrigatória para o ponto</h2><p style="margin:0 0 14px;color:#667085;font-size:14px">Posicione seu rosto no centro e tire uma foto atual. A imagem será armazenada em área privada.</p><video autoplay playsinline style="width:100%;aspect-ratio:4/3;object-fit:cover;background:#111;border-radius:12px"></video><canvas style="display:none"></canvas><div class="notice error hidden" style="margin-top:10px"></div><div style="display:flex;gap:10px;margin-top:14px"><button type="button" data-cancel class="secondary" style="flex:1">Cancelar</button><button type="button" data-capture class="primary" style="flex:1">Tirar foto</button></div></div>';
+  document.body.appendChild(dialog);
+  const video=dialog.querySelector("video"),canvas=dialog.querySelector("canvas"),capture=dialog.querySelector("[data-capture]"),err=dialog.querySelector(".notice");
+  dialog.querySelector("[data-cancel]").onclick=()=>finish(null);
+  capture.disabled=true;
+  try{
+   if(!navigator.mediaDevices?.getUserMedia)throw new Error("Este aparelho/navegador não permite abrir a câmera. Use o site em HTTPS e autorize a câmera.");
+   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280},height:{ideal:960}},audio:false});
+   video.srcObject=stream;await video.play();capture.disabled=false;
+  }catch(e){err.textContent=e.message||"Não foi possível acessar a câmera. Autorize o uso da câmera e tente novamente.";err.classList.remove("hidden");capture.textContent="Fechar";capture.disabled=false;capture.onclick=()=>finish(null);return;}
+  capture.onclick=()=>{
+   if(!video.videoWidth||!video.videoHeight){err.textContent="A câmera ainda está iniciando. Aguarde um instante.";err.classList.remove("hidden");return;}
+   canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+   canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+   canvas.toBlob(blob=>{if(!blob){err.textContent="Não foi possível gerar a foto. Tente novamente.";err.classList.remove("hidden");return;}finish(blob);},"image/jpeg",0.82);
+  };
+ });
+}
 document.querySelectorAll("[data-punch]").forEach(b=>b.onclick=async()=>{
  b.disabled=true;
  try{
+  const photo=await capturePunchPhoto();
+  if(!photo)throw new Error("A foto é obrigatória. O ponto não foi registrado.");
+  const session=(await sb.auth.getSession()).data.session;
+  if(!session)throw new Error("Sua sessão expirou. Entre novamente.");
+  const fileName=employee.empresa_id+"/"+employee.id+"/"+Date.now()+"-"+crypto.randomUUID()+".jpg";
+  const upload=await sb.storage.from("se-ponto-comprovantes").upload(fileName,photo,{contentType:"image/jpeg",cacheControl:"3600",upsert:false});
+  if(upload.error)throw upload.error;
   const {data:policy,error:policyError}=await sb.from("se_ponto_politicas_localizacao").select("exigir_gps").eq("empresa_id",employee.empresa_id).maybeSingle();
   if(policyError)throw policyError;
   const location=await getPunchLocation(policy?.exigir_gps!==false);
   const result=await sb.functions.invoke("se-ponto-registrar-batida",{
-   body:{type:b.dataset.punch,...location,device:(navigator.userAgent||"navegador").slice(0,120)}
+   body:{type:b.dataset.punch,photo_path:fileName,...location,device:(navigator.userAgent||"navegador").slice(0,120)}
   });
   if(result.error)throw result.error;
   if(result.data?.error)throw new Error(result.data.error);
   if(!result.data?.success)throw new Error("O servidor não confirmou o registro.");
-  showMsg("Ponto registrado às "+String(result.data.time||"").slice(0,5)+(result.data.local?" · "+result.data.local:""),"good");
+  showMsg("Ponto registrado às "+String(result.data.time||"").slice(0,5)+(result.data.local?" · "+result.data.local:"")+" · foto salva","good");
   await loadMyRecords();
  }catch(err){
   const msg=err?.context?.json?.error||err?.message||"Não foi possível registrar o ponto.";
