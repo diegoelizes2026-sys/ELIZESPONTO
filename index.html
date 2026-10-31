@@ -416,6 +416,7 @@ function hideMsg(){clearTimeout(msgTimer);$("message").classList.add("hidden")}
 function showMsg(t,k){message(t,k);$("message").classList.remove("hidden");clearTimeout(msgTimer);msgTimer=setTimeout(hideMsg,k==="good"?6000:12000)}
 $("message").onclick=hideMsg;
 function dateNow(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Fortaleza",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{});return p.year+"-"+p.month+"-"+p.day}
+async function officialClock(){try{const r=await sb.rpc("se_ponto_relogio_fortaleza");const c=Array.isArray(r.data)?r.data[0]:r.data;if(!r.error&&/^\\d{4}-\\d{2}-\\d{2}$/.test(String(c?.data_atual||""))&&/^\\d{2}:\\d{2}/.test(String(c?.hora_atual||"")))return{date:c.data_atual,time:c.hora_atual,weekday:Number(c.dia_semana)}}catch(e){console.warn("Relógio oficial:",e)}const d=dateNow();return{date:d,time:"",weekday:new Date(d+"T12:00:00").getDay()}}
 function dayOfWeekNow(){return new Date(dateNow()+"T12:00:00").getDay()}
 function mins(t){if(!t)return null;let p=t.slice(0,5).split(":").map(Number);return p[0]*60+p[1]}
 function duration(n){let s=n<0?"-":"";n=Math.abs(n||0);return s+Math.floor(n/60)+"h "+String(n%60).padStart(2,"0")+"min"}
@@ -500,8 +501,10 @@ async function route(){
 function show(id){$(id).classList.remove("hidden")}function hide(id){$(id).classList.add("hidden")}
 $("employeeForm").onsubmit=async e=>{e.preventDefault();let btn=$("createBtn");btn.disabled=true;try{let session=(await sb.auth.getSession()).data.session;if(!session)throw Error("Entre novamente como administrador.");let jornada=[...document.querySelectorAll("[data-day]")].map(ch=>{let work=ch.checked,e= $("entry").value,b=$("break1").value,c=$("break2").value,d=$("exit").value;return{dia_semana:+ch.dataset.day,trabalha:work,entrada:e,inicio_intervalo:b,fim_intervalo:c,saida:d,minutos_previstos:work?Math.max(0,(mins(b)-mins(e))+(mins(d)-mins(c))):0}});let res=await fetch(SUPABASE_URL+"/functions/v1/se-ponto-criar-funcionaria",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({nome:$("empName").value,email:$("empEmail").value,senha:$("empPassword").value,funcao:$("empRole").value,carga_semanal_minutos:+$("load").value,observacoes:$("notes").value,jornada})});let data;try{data=await res.json()}catch(_){throw Error("O serviço de criação de acesso não respondeu corretamente. Verifique se a função se-ponto-criar-funcionaria está publicada no Supabase.");}if(!res.ok||!data.success)throw Error(data.error||("Falha ao gerar acesso (HTTP "+res.status+"). Verifique a função se-ponto-criar-funcionaria no Supabase."));showMsg("Funcionária cadastrada. Entregue o link do site, e-mail e senha inicial.","good");const photoFile=$("empPhoto").files[0],beforeIds=employees.map(f=>f.id);$("employeeForm").reset();$("empRole").value="Funcionária";$("load").value="2640";$("entry").value="08:30";$("break1").value="12:30";$("break2").value="15:12";$("exit").value="20:00";$("days").innerHTML=dayNames.map((n,i)=>'<div class="day"><label><input type="checkbox" data-day="'+i+'" '+([1,2,3,4,5].includes(i)?"checked":"")+'> '+n+'</label></div>').join("");await loadEmployees();if(photoFile){const nf=employees.find(f=>!beforeIds.includes(f.id));if(nf){try{await savePhoto(nf.id,await fileToAvatar(photoFile));await loadEmployees()}catch(pe){showMsg("Funcionária cadastrada, mas a foto não foi salva: "+pe.message,"error")}}}}catch(err){showMsg(err.message,"error")}finally{btn.disabled=false}};
 async function renderStaff(){
-  show("staff");$("myAvatar").innerHTML=avatar(employee,64);$("hello").textContent="Olá, "+employee.nome+"!";$("today").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric",timeZone:"America/Fortaleza"});
-  $("staffMonth").value=dateNow().slice(0,7);
+  show("staff");$("myAvatar").innerHTML=avatar(employee,64);$("hello").textContent="Olá, "+employee.nome+"!";
+  const clock=await officialClock();
+  $("today").textContent=new Date(clock.date+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric",timeZone:"America/Fortaleza"});
+  $("staffMonth").value=clock.date.slice(0,7);
   $("staffMonth").onchange=loadMyRecords;
   await loadMyRecords();
   // Atualiza a área profissional periodicamente para refletir correções feitas pelo administrador.
@@ -514,17 +517,18 @@ async function renderStaff(){
   },15000);
 }
 async function loadMyRecords(){
-  const month=$("staffMonth")?.value||dateNow().slice(0,7);
+  const clock=await officialClock(),todayDate=clock.date;
+  const month=$("staffMonth")?.value||todayDate.slice(0,7);
   const first=month+"-01", last=month+"-"+String(new Date(+month.slice(0,4),+month.slice(5,7),0).getDate()).padStart(2,"0");
   let q=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).gte("data",first).lte("data",last).order("data",{ascending:false});
   if(q.error){showMsg("Não foi possível carregar sua folha de ponto: "+q.error.message,"error");return}
-  let a=q.data||[],today=a.find(r=>r.data===dateNow());
-  if(!today && month===dateNow().slice(0,7)){let t=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).eq("data",dateNow()).limit(1).then(first);if(!t.error)today=t.data}
+  let a=q.data||[],today=a.find(r=>String(r.data).slice(0,10)===todayDate);
+  if(!today && month===todayDate.slice(0,7)){let t=await sb.from("se_ponto_registros").select("*").eq("funcionario_id",employee.id).eq("data",todayDate).limit(1).then(first);if(!t.error)today=t.data}
   $("workedToday").textContent=duration(today?worked(today):0);
   const labels=[["entrada","Entrada"],["inicio_intervalo","Início do intervalo"],["fim_intervalo","Retorno do intervalo"],["saida","Saída"]];
   $("todayTimeline").innerHTML=labels.map(([k,label])=>'<div class="prof-time-row"><span>'+label+'</span><strong>'+(today?.[k]||"—")+'</strong></div>').join("");
   let schedule=null;
-  try{let j=await sb.from("se_ponto_jornadas").select("*").eq("funcionario_id",employee.id).eq("dia_semana",dayOfWeekNow()).limit(1).then(first);schedule=j.data||null}catch(e){}
+  try{let j=await sb.from("se_ponto_jornadas").select("*").eq("funcionario_id",employee.id).eq("dia_semana",clock.weekday).limit(1).then(first);schedule=j.data||null}catch(e){}
   let expected=Number(schedule?.minutos_previstos||today?.minutos_previstos||0),actual=today?worked(today):0;
   let status=$("todayStatus"),detail=$("statusDetail"),balance=$("balanceToday"),overtime=$("overtimeToday");
   status.className="status-pill status-neutral";status.textContent="Aguardando ponto";detail.textContent="Registre seus horários corretamente";balance.textContent="—";$("balanceDetail").textContent="Comparação com sua jornada";overtime.textContent="0h 00min";
