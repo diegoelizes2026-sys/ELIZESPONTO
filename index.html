@@ -1043,20 +1043,61 @@ async function loadSheet(){
 }
 function downloadPointPDF(c){
  const f=c.f,t=c.t,month=c.m.split("-").reverse().join("/");
- const lines=["BARBEARIA SEU ELIZES — FOLHA DE PONTO","Funcionário(a): "+(f.nome||"")+" | Função: "+(f.funcao||"Funcionário(a)"),"Mês: "+month+" | Jornada: "+jornadaTxt(c.js),"","DATA | JORNADA | BATIDAS (ENTRADA / INTERVALO / RETORNO / SAÍDA) | TRABALHADO | SALDO | SITUAÇÃO","--------------------------------------------------------------------------------"];
- c.days.slice().reverse().forEach(x=>{
+ const cp={"€":128,"‚":130,"ƒ":131,"„":132,"…":133,"†":134,"‡":135,"ˆ":136,"‰":137,"Š":138,"‹":139,"Œ":140,"Ž":142,"‘":145,"’":146,"“":147,"”":148,"•":149,"–":150,"—":151,"˜":152,"™":153,"š":154,"›":155,"œ":156,"ž":158,"Ÿ":159};
+ const hex=s=>Array.from(String(s??"")).map(ch=>{let n=cp[ch]??ch.codePointAt(0);if(n>255)n=63;return n.toString(16).padStart(2,"0")}).join("").toUpperCase();
+ const clean=s=>String(s??"—").replace(/\s+/g," ").trim();
+ const rows=c.days.slice().reverse().map(x=>{
   const r=x.r||{},date=x.date.split("-").reverse().join("/"),day=dayNames[new Date(x.date+"T12:00").getDay()].slice(0,3);
-  const punches=[hhmm(r.entrada),hhmm(r.inicio_intervalo),hhmm(r.fim_intervalo),hhmm(r.saida)].filter(v=>v&&v!=="—").join(" / ")||"—";
-  const planned=x.j&&x.j.trabalha!==false?hhmm(x.j.entrada)+"-"+hhmm(x.j.saida):"Folga";
-  const delta=x.delta?(x.delta>0?"+":"")+duration(x.delta):"—";
-  lines.push(date+" "+day+" | "+planned+" | "+punches+" | "+(x.r?duration(x.real):"—")+" | "+delta+" | "+x.txt);
+  const planned=x.j&&x.j.trabalha!==false?hhmm(x.j.entrada)+"–"+hhmm(x.j.saida):"Folga";
+  return {date,day,planned,entry:hhmm(r.entrada),break:hhmm(r.inicio_intervalo),back:hhmm(r.fim_intervalo),exit:hhmm(r.saida),worked:x.r?duration(x.real):"—",delta:x.delta?(x.delta>0?"+":"")+duration(x.delta):"—",status:clean(x.txt),deltaN:x.delta||0};
  });
- lines.push("","RESUMO DO MÊS","Dias trabalhados: "+t.trab,"Horas realizadas: "+duration(t.real),"Saldo do mês: "+(t.saldo>0?"+":"")+duration(t.saldo),"Pendências: "+t.pend,"","Saldo positivo é registrado como banco de horas; a compensação ou pagamento depende do contrato e do acordo aplicável.","","_______________________________                 _______________________________","Assinatura do(a) funcionário(a)                         Assinatura do responsável");
- const cp={"€":0x80,"‚":0x82,"ƒ":0x83,"„":0x84,"…":0x85,"†":0x86,"‡":0x87,"ˆ":0x88,"‰":0x89,"Š":0x8a,"‹":0x8b,"Œ":0x8c,"Ž":0x8e,"‘":0x91,"’":0x92,"“":0x93,"”":0x94,"•":0x95,"–":0x96,"—":0x97,"˜":0x98,"™":0x99,"š":0x9a,"›":0x9b,"œ":0x9c,"ž":0x9e,"Ÿ":0x9f};
- const hex=s=>Array.from(s).map(ch=>{let n=cp[ch]??ch.codePointAt(0);if(n>255)n=63;return n.toString(16).padStart(2,"0")}).join("").toUpperCase();
- const pages=[];for(let i=0;i<lines.length;i+=42)pages.push(lines.slice(i,i+42));
- const objs=[null,"<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids ["+pages.map((_,i)=>(4+i*2)+" 0 R").join(" ")+"] /Count "+pages.length+" >>","<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>"];
- pages.forEach((page,i)=>{const stream="BT\n/F1 8 Tf\n40 800 Td\n"+page.map((line,j)=>(j?"0 -18 Td\n":"")+"<"+hex(line.slice(0,115))+"> Tj").join("\n")+"\nET";const pageId=4+i*2,streamId=pageId+1;objs[pageId]="<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents "+streamId+" 0 R >>";objs[streamId]="<< /Length "+stream.length+" >>\nstream\n"+stream+"\nendstream"});
+ const perPage=19,pages=[];for(let i=0;i<rows.length;i+=perPage)pages.push(rows.slice(i,i+perPage));if(!pages.length)pages.push([]);
+ const cmds=[];
+ const rect=(x,y,w,h,color)=>cmds.push(color+" rg "+x+" "+y+" "+w+" "+h+" re f");
+ const line=(x1,y1,x2,y2,color="0.84 0.86 0.88")=>cmds.push(color+" RG 0.6 w "+x1+" "+y1+" m "+x2+" "+y2+" l S");
+ const txt=(s,x,y,size=8,color="0.16 0.19 0.22",font="F1")=>cmds.push("BT /"+font+" "+size+" Tf "+color+" rg 1 0 0 1 "+x+" "+y+" Tm <"+hex(s)+"> Tj ET");
+ const cols=[26,100,135,218,260,302,344,386,448,510,816];
+ pages.forEach((page,pi)=>{
+  cmds.length=0;
+  rect(0,0,842,595,"1 1 1");
+  rect(26,526,790,43,"0.12 0.16 0.20");
+  txt("BARBEARIA SEU ELIZES",42,550,13,"1 1 1","F2");
+  txt("FOLHA DE PONTO  |  "+month,42,535,8,"1 1 1");
+  txt("FUNCIONARIO(A): "+clean(f.nome),26,505,9,"0.12 0.16 0.20","F2");
+  txt("FUNCAO: "+clean(f.funcao||"Funcionario(a)"),310,505,8);
+  txt("JORNADA: "+clean(jornadaTxt(c.js)),520,505,8);
+  const cards=[["DIAS TRABALHADOS",String(t.trab)],["HORAS REALIZADAS",duration(t.real)],["SALDO DO MES",(t.saldo>0?"+":"")+duration(t.saldo)],["PENDENCIAS",String(t.pend)]];
+  cards.forEach((a,i)=>{const x=26+i*198;rect(x,456,188,36,"0.96 0.97 0.98");txt(a[0],x+10,479,7,"0.40 0.44 0.48","F2");txt(a[1],x+10,464,12,i===2?(t.saldo<0?"0.75 0.18 0.16":t.saldo>0?"0.12 0.48 0.29":"0.16 0.19 0.22"):"0.16 0.19 0.22","F2")});
+  const top=438;
+  rect(26,top-22,790,22,"0.91 0.93 0.95");
+  const headers=["DATA","DIA","JORNADA","ENTRADA","INTERV.","RETORNO","SAIDA","TRABALHADO","SALDO","SITUACAO"];
+  headers.forEach((h,i)=>txt(h,cols[i]+4,top-14,6.5,"0.22 0.26 0.30","F2"));
+  page.forEach((r,ri)=>{
+   const y=top-22-(ri+1)*18;
+   if(ri%2===1)rect(26,y,790,18,"0.975 0.98 0.985");
+   line(26,y,816,y);
+   const vals=[r.date,r.day,r.planned,r.entry,r.break,r.back,r.exit,r.worked,r.delta,r.status];
+   vals.forEach((v,i)=>{
+    let color="0.17 0.20 0.23";if(i===8)color=r.deltaN<0?"0.76 0.16 0.14":r.deltaN>0?"0.12 0.47 0.28":"0.17 0.20 0.23";
+    txt(clean(v).slice(0,i===9?47:18),cols[i]+4,y+6,6.5,color);
+   });
+  });
+  const endY=top-22-page.length*18;
+  line(26,endY,816,endY,"0.72 0.75 0.78");
+  if(pi===pages.length-1){
+   const sy=Math.max(74,endY-42);
+   txt("OBSERVACAO: saldo positivo integra o banco de horas, conforme contrato e acordo aplicavel.",26,sy,7,"0.40 0.44 0.48");
+   line(70,48,330,48,"0.20 0.22 0.24");line(510,48,770,48,"0.20 0.22 0.24");
+   txt("ASSINATURA DO(A) FUNCIONARIO(A)",105,35,7,"0.30 0.33 0.36");
+   txt("ASSINATURA DO RESPONSAVEL",550,35,7,"0.30 0.33 0.36");
+  }
+  txt("BARBEARIA SEU ELIZES  •  DOCUMENTO PARA CONFERENCIA",26,17,6,"0.55 0.57 0.60");
+  txt("PAGINA "+(pi+1)+" DE "+pages.length,755,17,6,"0.55 0.57 0.60");
+  pages[pi]._stream=cmds.join("\n");
+ });
+ const objs=[null,"<< /Type /Catalog /Pages 2 0 R >>",null,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>","<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"];
+ pages.forEach((p,i)=>{const pageId=5+i*2,streamId=pageId+1,stream=p._stream;objs[pageId]="<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents "+streamId+" 0 R >>";objs[streamId]="<< /Length "+stream.length+" >>\nstream\n"+stream+"\nendstream"});
+ objs[2]="<< /Type /Pages /Kids ["+pages.map((_,i)=>(5+i*2)+" 0 R").join(" ")+"] /Count "+pages.length+" >>";
  let pdf="%PDF-1.4\n",offsets=[0];for(let i=1;i<objs.length;i++){offsets[i]=pdf.length;pdf+=i+" 0 obj\n"+objs[i]+"\nendobj\n"}const xref=pdf.length;pdf+="xref\n0 "+objs.length+"\n0000000000 65535 f \n";for(let i=1;i<objs.length;i++)pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";pdf+="trailer\n<< /Size "+objs.length+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF";
  const blob=new Blob([pdf],{type:"application/pdf"}),url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="folha-de-ponto-"+String(f.nome||"funcionario").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9-]+/g,"-")+"-"+c.m+".pdf";
