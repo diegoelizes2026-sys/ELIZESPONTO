@@ -1042,7 +1042,7 @@ function downloadPointPDF(c){
  const hex=s=>Array.from(String(s??"")).map(ch=>{let n=cp[ch]??ch.codePointAt(0);if(n>255)n=63;return n.toString(16).padStart(2,"0")}).join("").toUpperCase();
  const clean=s=>String(s??"").replace(/\s+/g," ").trim();
  const monthStart=c.m+"-01",lastDay=new Date(Number(c.m.slice(0,4)),Number(c.m.slice(5,7)),0).getDate();
- const rows=c.days.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>{
+ const byDate=new Map(c.days.map(x=>[x.date,x]));\n const rows=Array.from({length:lastDay},(_,i)=>{const date=c.m+"-"+String(i+1).padStart(2,"0"),dow=new Date(date+"T12:00:00").getDay();return byDate.get(date)||{date,r:null,j:c.js.find(z=>Number(z.dia_semana)===dow),txt:"",o:null};}).map(x=>{
   const r=x.r||{},d=Number(x.date.slice(8,10)),dow=new Date(x.date+"T12:00:00").getDay();
   const day=dayNames[dow].slice(0,3);
   let note=x.txt&&x.txt!=="—"?x.txt:"";
