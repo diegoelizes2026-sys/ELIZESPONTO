@@ -371,7 +371,7 @@ table{max-width:100%}
 </div>
 <div class="prof-main-grid">
   <div class="prof-card">
-    <h3>Registrar minha jornada</h3><p class="card-sub">Marque cada horário no momento em que acontecer.</p>
+    <h3>Registrar minha jornada</h3><p class="card-sub">Registre cada horário no momento em que acontecer. Não é necessário tirar foto.</p>
     <div class="punch-grid">
       <button class="punch" data-punch="entrada">↗ Marcar entrada</button>
       <button class="punch" data-punch="inicio_intervalo">Ⅱ Iniciar intervalo</button>
@@ -579,23 +579,18 @@ async function capturePunchPhoto(){
 document.querySelectorAll("[data-punch]").forEach(b=>b.onclick=async()=>{
  b.disabled=true;
  try{
-  const photo=await capturePunchPhoto();
-  if(!photo)throw new Error("A foto é obrigatória. O ponto não foi registrado.");
   const session=(await sb.auth.getSession()).data.session;
   if(!session)throw new Error("Sua sessão expirou. Entre novamente.");
-  const fileName=employee.empresa_id+"/"+employee.id+"/"+Date.now()+"-"+crypto.randomUUID()+".jpg";
-  const upload=await sb.storage.from("se-ponto-comprovantes").upload(fileName,photo,{contentType:"image/jpeg",cacheControl:"3600",upsert:false});
-  if(upload.error)throw upload.error;
   const {data:policy,error:policyError}=await sb.from("se_ponto_politicas_localizacao").select("exigir_gps").eq("empresa_id",employee.empresa_id).maybeSingle();
   if(policyError)throw policyError;
   const location=await getPunchLocation(policy?.exigir_gps!==false);
   const result=await sb.functions.invoke("se-ponto-registrar-batida",{
-   body:{type:b.dataset.punch,photo_path:fileName,...location,device:(navigator.userAgent||"navegador").slice(0,120)}
+   body:{type:b.dataset.punch,...location,device:(navigator.userAgent||"navegador").slice(0,120)}
   });
   if(result.error)throw result.error;
   if(result.data?.error)throw new Error(result.data.error);
   if(!result.data?.success)throw new Error("O servidor não confirmou o registro.");
-  showMsg("Ponto registrado às "+String(result.data.time||"").slice(0,5)+(result.data.local?" · "+result.data.local:"")+" · foto salva","good");
+  showMsg("Ponto registrado às "+String(result.data.time||"").slice(0,5)+(result.data.local?" · "+result.data.local:""),"good");
   await loadMyRecords();
  }catch(err){
   const msg=err?.context?.json?.error||err?.message||"Não foi possível registrar o ponto.";
